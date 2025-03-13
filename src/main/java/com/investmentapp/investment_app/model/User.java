@@ -2,19 +2,21 @@ package com.investmentapp.investment_app.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "app_user")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)  // Use AUTO for UUID generation
+    @Column(columnDefinition = "UUID DEFAULT uuid_generate_v4()")  // Explicitly specify UUID generation
+    private UUID id;  // Change Long to UUID
 
     private String fullName;
     private String email;
     private String passwordHash;
-
+    private String username;
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -25,11 +27,11 @@ public class User {
     }
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -63,5 +65,13 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

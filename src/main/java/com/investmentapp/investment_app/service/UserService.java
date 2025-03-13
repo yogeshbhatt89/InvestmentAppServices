@@ -1,5 +1,6 @@
 package com.investmentapp.investment_app.service;
 
+import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User registerUser(String fullName, String email, String password) {
+    public User registerUser(String fullName, String email, String password, String username) {
         if (userRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("User already exists!");
+            throw new EmailAlreadyExistsException("Email already exists!");
         }
 
         String passwordHash = passwordEncoder.encode(password);
@@ -29,6 +30,7 @@ public class UserService {
         user.setFullName(fullName);
         user.setEmail(email);
         user.setPasswordHash(passwordHash);
+        user.setUsername(username);
         user.setCreatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
@@ -50,5 +52,14 @@ public class UserService {
 
     public boolean validatePassword(String rawPassword, String storedPassword) {
         return passwordEncoder.matches(rawPassword, storedPassword);
+    }
+
+    // Get user details by username
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    //Get user details by email
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }
