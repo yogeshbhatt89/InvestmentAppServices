@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,7 +54,10 @@ public class AuthController {
         );
 
         if (userOptional.isPresent()) {
-            Map<String, String> tokens = authService.generateTokens(userOptional.get().getEmail());
+            User user = userOptional.get();
+            List<String> roles = user.getRolesAsString(); // Retrieve roles as strings
+
+            Map<String, String> tokens = authService.generateTokens(user.getEmail(), roles);
             return ResponseEntity.ok(tokens);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");

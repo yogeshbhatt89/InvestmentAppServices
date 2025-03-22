@@ -2,11 +2,14 @@ package com.investmentapp.investment_app.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
@@ -17,17 +20,22 @@ public class JwtTokenUtil {
     private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minutes
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
 
-    // Generate access token
-    public String generateAccessToken(String username) {
+    // Generate access token with roles
+    public String generateAccessToken(String username, Collection<? extends GrantedAuthority> authorities) {
+        List<String> roles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
         return Jwts.builder()
                 .setSubject(username)
+                .claim("roles", roles)  // Store roles inside JWT
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
                 .signWith(SECRET_KEY)
                 .compact();
     }
 
-    // Generate refresh token
+    // Generate refresh token (roles are not needed in refresh tokens)
     public String generateRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
@@ -37,23 +45,33 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    // Validate token (true = refresh token, false = access token)
+    // Validate token
     public boolean validateToken(String token, boolean isRefreshToken) {
         try {
             Claims claims = extractAllClaims(token);
-            Date expiration = claims.getExpiration();
-            Date currentTime = new Date();
-
-            // If it's expired, return false
-            return expiration.after(currentTime);
+            return claims.getExpiration().after(new Date());
         } catch (JwtException e) {
             return false;
         }
     }
 
-    // Get the username (subject) from the token
+    // Get the username from the token
     public String getUsernameFromToken(String token, boolean isRefreshToken) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    // Extract authorities (roles) from the token
+    public Collection<? extends GrantedAuthority> getAuthoritiesFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        List<String> roles = claims.get("roles", List.class);
+
+        if (roles == null) {
+            return Collections.emptyList();
+        }
+
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     // Extract a specific claim from the token
@@ -70,5 +88,6 @@ public class JwtTokenUtil {
         Jws<Claims> claimsJws = parser.parseClaimsJws(token);
         return claimsJws.getBody();
     }
-
 }
+
+

@@ -2,31 +2,47 @@ package com.investmentapp.investment_app.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "app_user")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)  // Use AUTO for UUID generation
-    @Column(columnDefinition = "UUID DEFAULT uuid_generate_v4()")  // Explicitly specify UUID generation
-    private UUID id;  // Change Long to UUID
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "UUID DEFAULT uuid_generate_v4()")
+    private UUID id;
 
     private String fullName;
     private String email;
     private String passwordHash;
     private String username;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // Automatically set the createdAt timestamp before persisting the entity
+    @ElementCollection(fetch = FetchType.EAGER)  // Ensures roles are fetched with the user
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles = new HashSet<>();  // Ensure roles are always initialized
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+
+        // Ensure the roles are set to at least USER if not set yet
+        if (this.roles == null || this.roles.isEmpty()) {
+            this.roles = new HashSet<>();
+            this.roles.add(Role.USER);  // Default role
+        }
     }
 
-    // Getters and setters
+    // Getters and Setters
+
     public UUID getId() {
         return id;
     }
@@ -59,6 +75,14 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -67,11 +91,15 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public String getUsername() {
-        return username;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public List<String> getRolesAsString() {
+        return roles.stream().map(Enum::name).collect(Collectors.toList());
     }
 }
