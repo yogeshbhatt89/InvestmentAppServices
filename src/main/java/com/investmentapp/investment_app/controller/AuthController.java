@@ -46,6 +46,7 @@ public class AuthController {
     }
 
     // Login user and return JWT tokens
+    // Login user and return JWT tokens
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Optional<User> userOptional = userService.loginUser(
@@ -55,14 +56,16 @@ public class AuthController {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            List<String> roles = user.getRolesAsString(); // Retrieve roles as strings
 
-            Map<String, String> tokens = authService.generateTokens(user.getEmail(), roles);
+            // Directly pass the user object to generateTokens
+            Map<String, String> tokens = authService.generateTokens(user);  // Pass user object
+
             return ResponseEntity.ok(tokens);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
     }
+
 
     // Refresh access token
     @PostMapping("/refresh")

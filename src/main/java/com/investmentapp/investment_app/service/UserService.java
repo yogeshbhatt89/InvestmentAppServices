@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.service;
 
 import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
+import com.investmentapp.investment_app.exception.UserNotFoundException;
 import com.investmentapp.investment_app.model.Role;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.UserRepository;
@@ -66,10 +67,15 @@ public class UserService {
 
     // Get user details by username
     public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
     }
+
+
     //Get user details by email
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+
 }

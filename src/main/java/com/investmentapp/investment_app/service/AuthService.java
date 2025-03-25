@@ -1,5 +1,7 @@
 package com.investmentapp.investment_app.service;
 
+import com.investmentapp.investment_app.model.User;
+import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,14 +17,14 @@ public class AuthService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    // Generate both access and refresh tokens
-    public Map<String, String> generateTokens(String username, List<String> roles) {
-        Collection<? extends GrantedAuthority> authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+    @Autowired
+    private UserRepository userRepository;  // Inject the UserRepository here
 
-        String accessToken = jwtTokenUtil.generateAccessToken(username, authorities);
-        String refreshToken = jwtTokenUtil.generateRefreshToken(username);
+    // Generate both access and refresh tokens
+    public Map<String, String> generateTokens(User user) {
+        // Generate both access and refresh tokens using the user object
+        String accessToken = jwtTokenUtil.generateAccessToken(user);
+        String refreshToken = jwtTokenUtil.generateRefreshToken(user.getUsername()); // Assuming refresh token generation still uses username
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
@@ -31,11 +33,8 @@ public class AuthService {
     }
 
     // Generate only an access token
-    public String generateAccessToken(String username, List<String> roles) {
-        Collection<? extends GrantedAuthority> authorities = roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-        return jwtTokenUtil.generateAccessToken(username, authorities);
+    public String generateAccessToken(User user) {
+        return jwtTokenUtil.generateAccessToken(user); // Call the updated method with User
     }
 
     // Generate only a refresh token
@@ -50,9 +49,9 @@ public class AuthService {
             List<String> roles = jwtTokenUtil.getAuthoritiesFromToken(refreshToken).stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
-            return jwtTokenUtil.generateAccessToken(username, roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList()));
+            // You would typically fetch the user from the database here to get the full user info
+            User user = getUserByUsername(username); // Assuming you have a method to get the User object from the username
+            return jwtTokenUtil.generateAccessToken(user);
         }
         throw new RuntimeException("Invalid or expired refresh token");
     }
@@ -75,5 +74,11 @@ public class AuthService {
     // Extract the username from the refresh token
     public String extractUsernameFromRefreshToken(String refreshToken) {
         return jwtTokenUtil.getUsernameFromToken(refreshToken, true);
+    }
+
+    // Helper method to get a User by username
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
     }
 }

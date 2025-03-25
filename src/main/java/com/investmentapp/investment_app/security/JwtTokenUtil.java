@@ -1,5 +1,6 @@
 package com.investmentapp.investment_app.security;
 
+import com.investmentapp.investment_app.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,19 +22,23 @@ public class JwtTokenUtil {
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
 
     // Generate access token with roles
-    public String generateAccessToken(String username, Collection<? extends GrantedAuthority> authorities) {
-        List<String> roles = authorities.stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+    public String generateAccessToken(User user) {
+        // Extract roles from the user object
+        List<String> roles = user.getRolesAsString(); // Assuming getRolesAsString() returns List<String>
 
+        // Generate the JWT token with username and roles as claims
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(user.getUsername()) // Set username as the subject
                 .claim("roles", roles)  // Store roles inside JWT
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
-                .signWith(SECRET_KEY)
-                .compact();
+                .claim("email", user.getEmail()) // Add email as a claim
+                .claim("fullName", user.getFullName()) // Add full name as a claim, if needed
+                .setIssuedAt(new Date()) // Set the issued time of the token
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))  // Set token expiration time
+                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)  // Sign the token with a secret key
+                .compact();  // Create and return the token
     }
+
+
 
     // Generate refresh token (roles are not needed in refresh tokens)
     public String generateRefreshToken(String username) {
