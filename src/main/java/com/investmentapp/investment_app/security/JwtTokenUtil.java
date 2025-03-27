@@ -1,52 +1,106 @@
 package com.investmentapp.investment_app.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.investmentapp.investment_app.model.User;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
-    // Generate a secure 512-bit key for HS512 every time the application runs
-    private SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
-    private static final long EXPIRATION_TIME = 3600000; // 1 hour in milliseconds
+    private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
-    // Generate a JWT token
-    public String generateToken(String username) {
-        Date now = new Date();
-        Date expirationDate = new Date(now.getTime() + EXPIRATION_TIME); // Expiration time set here
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 15; // 15 minutes
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
+
+    public String generateAccessToken(User user) {
+        List<String> roles = user.getRolesAsString().stream()
+                .map(role -> "ROLE_" + role)
+                .collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expirationDate) // Set the expiration date
-                .signWith(secretKey)  // Sign the token with the generated key
+                .subject(user.getEmail())
+                .claim("username", user.getUsername())
+                .claim("roles", roles)
+                .claim("fullName", user.getFullName())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
+                .signWith(SECRET_KEY)
                 .compact();
     }
 
-    // Extract username from the token
-    public String getUsernameFromToken(String token) {
-        return getClaimsFromToken(token).getSubject();
+
+    public String generateRefreshToken(User user) {
+        return Jwts.builder()
+                .subject(user.getEmail())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
+                .signWith(SECRET_KEY)
+                .compact();
     }
 
-    // Validate the token
     public boolean validateToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return !claims.getExpiration().before(new Date());
+        try {
+            Claims claims = extractAllClaims(token);
+            Date expiration = claims.getExpiration();
+            System.out.println("Token expiration: " + expiration);
+            return expiration.after(new Date());
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token expired: " + e.getMessage());
+        } catch (JwtException e) {
+            System.out.println("Invalid token: " + e.getMessage());
+        }
+        return false;
     }
 
-    // Extract claims from the token using the JwtParserBuilder for version 0.12.x
-    private Claims getClaimsFromToken(String token) {
-        JwtParser jwtParser = Jwts.parser()
-                .setSigningKey(secretKey)
-                .build();
 
-        return jwtParser.parseClaimsJws(token).getBody();
+    public String getEmailFromToken(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public String getUsernameFromToken(String token) {
+        // Extract the username claim from the token
+        return extractClaim(token, claims -> claims.get("username", String.class));
+    }
+    public List<GrantedAuthority> getAuthoritiesFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        List<String> roles = claims.get("roles", List.class);
+
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+
+
+    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        try {
+            JwtParser parser = Jwts.parser()
+                    .verifyWith(SECRET_KEY)
+                    .build();
+
+            return parser.parseSignedClaims(token).getPayload();
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token has expired: " + e.getMessage());
+            throw e;
+        } catch (JwtException e) {
+            System.out.println("Invalid token: " + e.getMessage());
+            throw e;
+        }
     }
 }
+
+
+
