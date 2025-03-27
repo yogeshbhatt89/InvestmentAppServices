@@ -8,10 +8,8 @@ import com.investmentapp.investment_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -45,7 +43,6 @@ public class AuthController {
         }
     }
 
-    // Login user and return JWT tokens
     // Login user and return JWT tokens
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -83,7 +80,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
-    @PreAuthorize("hasRole('USER')")
+
     @GetMapping("/me")
     public ResponseEntity<?> getLoggedInUser(@RequestHeader("Authorization") String authorizationHeader) {
         try {
@@ -96,18 +93,18 @@ public class AuthController {
             String token = authorizationHeader.replace("Bearer ", "");
 
             // Validate token
-            if (!jwtTokenUtil.validateToken(token, false)) {
+            if (!jwtTokenUtil.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
             }
 
-            // Extract email (username) from the token
-            String email = jwtTokenUtil.getUsernameFromToken(token, false);
-
-            // Fetch user details by email
-            Optional<User> userOptional = userService.getUserByEmail(email);
+            // Extract username (or email) from the token
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            // Fetch user details by username (email, or whatever you use)
+            Optional<User> userOptional = Optional.ofNullable(userService.getUserByUsername(username));
 
             if (userOptional.isPresent()) {
-                return ResponseEntity.ok(userOptional.get());
+                User user = userOptional.get();
+                return ResponseEntity.ok(user); // No more role check here
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
             }
@@ -115,6 +112,5 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to retrieve user details: " + e.getMessage());
         }
     }
-
 
 }

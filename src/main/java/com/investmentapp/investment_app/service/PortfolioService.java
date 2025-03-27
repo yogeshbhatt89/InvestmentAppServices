@@ -9,12 +9,15 @@ import com.investmentapp.investment_app.repository.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Validated
 public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
@@ -25,9 +28,11 @@ public class PortfolioService {
         this.userRepository = userRepository;
     }
     // 1️⃣ Create Portfolio
-    public PortfolioDTO createPortfolio(PortfolioDTO dto, String email) {
-        User user = userRepository.findByEmail(email)  // Use User instead of AppUser
+    public PortfolioDTO createPortfolio(@Valid PortfolioDTO dto, String email) {
+        System.out.println("PortfolioService: createPortfolio called for email: " + email); // Added logging
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        System.out.println("PortfolioService: createPortfolio found user: " + user.getUsername()); // Added logging
 
         Portfolio portfolio = new Portfolio();
         portfolio.setUser(user);
@@ -57,6 +62,7 @@ public class PortfolioService {
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found"));
 
         if (!portfolio.getUser().getEmail().equals(email)) {
+            System.err.println("PortfolioService: AccessDeniedException: User does not own portfolio");
             throw new AccessDeniedException("You do not own this portfolio");
         }
 
@@ -64,16 +70,30 @@ public class PortfolioService {
     }
 
     // 4️⃣ Update Portfolio
-    public PortfolioDTO updatePortfolio(Long id, PortfolioDTO dto, String email) {
+    public PortfolioDTO updatePortfolio(Long id,@Valid PortfolioDTO dto, String email) {
+        System.out.println("PortfolioService: updatePortfolio called for id: " + id + ", email: " + email);
         Portfolio portfolio = portfolioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Portfolio not found"));
 
+        System.out.println("PortfolioService: portfolio owner email: " + portfolio.getUser().getEmail());
+
         if (!portfolio.getUser().getEmail().equals(email)) {
+            System.err.println("PortfolioService: AccessDeniedException: User does not own portfolio");
             throw new AccessDeniedException("You do not own this portfolio");
+        }
+
+        if (dto.getInitialBalance() < 0) {
+            throw new IllegalArgumentException("Initial balance must be non-negative");
+        }
+
+        if (dto.getCurrentBalance() < 0) {
+            throw new IllegalArgumentException("Current balance must be non-negative");
         }
 
         portfolio.setName(dto.getName());
         portfolio.setRiskTolerance(dto.getRiskTolerance());
+        portfolio.setInitialBalance(dto.getInitialBalance());
+        portfolio.setCurrentBalance(dto.getCurrentBalance());
         portfolioRepository.save(portfolio);
 
         return PortfolioMapper.toDTO(portfolio);

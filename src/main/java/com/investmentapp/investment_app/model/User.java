@@ -1,16 +1,17 @@
 package com.investmentapp.investment_app.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "app_user")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -25,19 +26,18 @@ public class User {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @ElementCollection(fetch = FetchType.EAGER)  // Ensures roles are fetched with the user
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
-    private Set<Role> roles = new HashSet<>();  // Ensure roles are always initialized
+    private Set<Role> roles = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
 
-        // Ensure the roles are set to at least USER if not set yet
         if (this.roles == null || this.roles.isEmpty()) {
             this.roles = new HashSet<>();
-            this.roles.add(Role.USER);  // Default role
+            this.roles.add(Role.USER);
         }
     }
 
@@ -101,5 +101,39 @@ public class User {
 
     public List<String> getRolesAsString() {
         return roles.stream().map(Enum::name).collect(Collectors.toList());
+    }
+
+    // UserDetails implementation
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.name()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Implement your logic if needed
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Implement your logic if needed
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Implement your logic if needed
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Implement your logic if needed
     }
 }

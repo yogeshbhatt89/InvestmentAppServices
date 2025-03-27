@@ -1,12 +1,16 @@
 package com.investmentapp.investment_app.DTO;
 
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 public class PortfolioDTO {
 
     private Long id;
     private String name;
+    @Min(value = 0, message = "Initial balance must be non-negative")
     private Double initialBalance;
+
+    @Min(value = 0, message = "Current balance must be non-negative")
     private Double currentBalance;
     private String riskTolerance;
     private LocalDateTime createdAt;

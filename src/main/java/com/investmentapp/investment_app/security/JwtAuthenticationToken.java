@@ -1,5 +1,6 @@
 package com.investmentapp.investment_app.security;
 
+import com.investmentapp.investment_app.model.User;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -7,21 +8,21 @@ import java.util.Collection;
 
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final String username;
+    private final User user;
 
-    public JwtAuthenticationToken(String username, Collection<? extends GrantedAuthority> authorities) {
-        super(authorities); // Pass authorities to the parent constructor
-        this.username = username;
-        setAuthenticated(true); // Mark as authenticated since JWT is already validated
+    public JwtAuthenticationToken(User user, Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
+        this.user = user;
+        setAuthenticated(true);
     }
 
     @Override
     public Object getCredentials() {
-        return null; // No credentials needed for JWT-based authentication
+        return null;
     }
 
     @Override
     public Object getPrincipal() {
-        return this.username;
+        return this.user;
     }
 }

@@ -4,12 +4,10 @@ import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AuthService {
@@ -18,13 +16,12 @@ public class AuthService {
     private JwtTokenUtil jwtTokenUtil;
 
     @Autowired
-    private UserRepository userRepository;  // Inject the UserRepository here
+    private UserRepository userRepository;
 
     // Generate both access and refresh tokens
     public Map<String, String> generateTokens(User user) {
-        // Generate both access and refresh tokens using the user object
         String accessToken = jwtTokenUtil.generateAccessToken(user);
-        String refreshToken = jwtTokenUtil.generateRefreshToken(user.getUsername()); // Assuming refresh token generation still uses username
+        String refreshToken = jwtTokenUtil.generateRefreshToken(user);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
@@ -34,23 +31,23 @@ public class AuthService {
 
     // Generate only an access token
     public String generateAccessToken(User user) {
-        return jwtTokenUtil.generateAccessToken(user); // Call the updated method with User
+        return jwtTokenUtil.generateAccessToken(user);
     }
 
     // Generate only a refresh token
-    public String generateRefreshToken(String username) {
-        return jwtTokenUtil.generateRefreshToken(username);
+    public String generateRefreshToken(User user) {
+        return jwtTokenUtil.generateRefreshToken(user);
     }
 
     // Refresh access token using a valid refresh token
     public String refreshAccessToken(String refreshToken) {
-        if (jwtTokenUtil.validateToken(refreshToken, true)) {
-            String username = jwtTokenUtil.getUsernameFromToken(refreshToken, true);
-            List<String> roles = jwtTokenUtil.getAuthoritiesFromToken(refreshToken).stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
-            // You would typically fetch the user from the database here to get the full user info
-            User user = getUserByUsername(username); // Assuming you have a method to get the User object from the username
+        if (jwtTokenUtil.validateToken(refreshToken)) {
+            String email = jwtTokenUtil.getEmailFromToken(refreshToken);
+            User user = getUserByEmail(email);
+
+            if (user == null) {
+                throw new RuntimeException("User not found for email: " + email);
+            }
             return jwtTokenUtil.generateAccessToken(user);
         }
         throw new RuntimeException("Invalid or expired refresh token");
@@ -58,27 +55,27 @@ public class AuthService {
 
     // Validate the access token
     public boolean validateAccessToken(String accessToken) {
-        return jwtTokenUtil.validateToken(accessToken, false);
+        return jwtTokenUtil.validateToken(accessToken);
     }
 
-    // Extract the username from the access token
-    public String extractUsernameFromAccessToken(String accessToken) {
-        return jwtTokenUtil.getUsernameFromToken(accessToken, false);
+    // Extract the email from the access token
+    public String extractEmailFromAccessToken(String accessToken) {
+        return jwtTokenUtil.getEmailFromToken(accessToken);
     }
 
     // Validate the refresh token
     public boolean validateRefreshToken(String refreshToken) {
-        return jwtTokenUtil.validateToken(refreshToken, true);
+        return jwtTokenUtil.validateToken(refreshToken);
     }
 
-    // Extract the username from the refresh token
-    public String extractUsernameFromRefreshToken(String refreshToken) {
-        return jwtTokenUtil.getUsernameFromToken(refreshToken, true);
+    // Extract the email from the refresh token
+    public String extractEmailFromRefreshToken(String refreshToken) {
+        return jwtTokenUtil.getEmailFromToken(refreshToken);
     }
 
-    // Helper method to get a User by username
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    // Helper method to get a User by email
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
 }

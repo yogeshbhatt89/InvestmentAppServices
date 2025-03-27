@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
@@ -34,43 +33,46 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         extractToken(request).ifPresent(token -> {
             try {
-                if (jwtTokenUtil.validateToken(token, false)) {
-                    String username = jwtTokenUtil.getUsernameFromToken(token, false);
-                    Optional<User> userOptional = userRepository.findByUsername(username);
+                System.out.println("JWT Filter invoked");
+                if (jwtTokenUtil.validateToken(token)) {
+                    String email = jwtTokenUtil.getEmailFromToken(token);
+                    Optional<User> userOptional = userRepository.findByEmail(email);
 
                     if (userOptional.isPresent()) {
                         User user = userOptional.get();
-                        setAuthentication(user);
-                        System.out.println("JWT validated successfully for user: " + user.getUsername());
-                    } else {
-                        System.out.println("User not found with username: " + username);
+                        System.out.println("User is : " + user);
+                        setAuthentication(user, token);  // Proceed with authentication
                     }
-                } else {
-                    System.out.println("JWT validation failed!");
                 }
             } catch (Exception e) {
                 logger.warn("JWT validation failed: " + e.getMessage());
             }
         });
 
+        System.out.println("Passing control to the next filter in the chain");
         filterChain.doFilter(request, response);
     }
 
     private Optional<String> extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        return (header != null && header.startsWith("Bearer "))
-                ? Optional.of(header.substring(7))
-                : Optional.empty();
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+            System.out.println("Extracted Token: " + token);
+            return Optional.of(token);
+        }
+        return Optional.empty();
     }
 
-    private void setAuthentication(User user) {
-        Collection<? extends GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> (GrantedAuthority) () -> "ROLE_" + role.name())
-                .collect(Collectors.toList());
+    private void setAuthentication(User user, String token) {
+        // Use JwtTokenUtil to extract roles from the token
+        List<GrantedAuthority> authorities = jwtTokenUtil.getAuthoritiesFromToken(token);
 
+        // Pass the User object as the principal
         UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(user.getUsername(), null, authorities);
+                new UsernamePasswordAuthenticationToken(user, token, authorities);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        System.out.println("Authentication set: " + SecurityContextHolder.getContext().getAuthentication());
     }
 }
