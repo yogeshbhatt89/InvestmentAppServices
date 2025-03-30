@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.DTO;
 
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
+
 import java.time.LocalDateTime;
 
 public class PortfolioDTO {

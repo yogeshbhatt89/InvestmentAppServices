@@ -1,8 +1,7 @@
 package com.investmentapp.investment_app.controller;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
-
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 public class LoginRequest {
 
     @Email(message = "Email should be valid")
