@@ -1,7 +1,9 @@
 package com.investmentapp.investment_app.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class PortfolioDTO {
@@ -9,15 +11,19 @@ public class PortfolioDTO {
     private Long id;
     private String name;
     @Min(value = 0, message = "Initial balance must be non-negative")
-    private Double initialBalance;
+    private BigDecimal initialBalance;  // Change to BigDecimal
 
-    @Min(value = 0, message = "Current balance must be non-negative")
-    private Double currentBalance;
+    private BigDecimal currentBalance;  // Change to BigDecimal
     private String riskTolerance;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
     // Constructor
-    public PortfolioDTO(Long id, String name, Double initialBalance, Double currentBalance, String riskTolerance, LocalDateTime createdAt) {
+    public PortfolioDTO() {
+    }
+
+
+    public PortfolioDTO(Long id, String name, BigDecimal initialBalance, BigDecimal currentBalance, String riskTolerance, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.initialBalance = initialBalance;
@@ -43,19 +49,19 @@ public class PortfolioDTO {
         this.name = name;
     }
 
-    public Double getInitialBalance() {
+    public BigDecimal getInitialBalance() {
         return initialBalance;
     }
 
-    public void setInitialBalance(Double initialBalance) {
+    public void setInitialBalance(BigDecimal initialBalance) {
         this.initialBalance = initialBalance;
     }
 
-    public Double getCurrentBalance() {
+    public BigDecimal getCurrentBalance() {
         return currentBalance;
     }
 
-    public void setCurrentBalance(Double currentBalance) {
+    public void setCurrentBalance(BigDecimal currentBalance) {
         this.currentBalance = currentBalance;
     }
 

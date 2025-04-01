@@ -15,4 +15,14 @@ public class PortfolioMapper {
                 portfolio.getCreatedAt()
         );
     }
+    public static Portfolio toEntity(PortfolioDTO dto) {
+        Portfolio portfolio = new Portfolio();
+        portfolio.setId(dto.getId());
+        portfolio.setName(dto.getName());
+        portfolio.setInitialBalance(dto.getInitialBalance());  // Ensure BigDecimal
+        portfolio.setCurrentBalance(dto.getCurrentBalance());  // Ensure BigDecimal
+        portfolio.setRiskTolerance(dto.getRiskTolerance());
+        portfolio.setCreatedAt(dto.getCreatedAt());
+        return portfolio;
+    }
 }
