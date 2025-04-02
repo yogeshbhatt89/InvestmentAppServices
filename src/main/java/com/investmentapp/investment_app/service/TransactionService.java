@@ -1,9 +1,12 @@
 package com.investmentapp.investment_app.service;
 
 import com.investmentapp.investment_app.DTO.TransactionDTO;
+import com.investmentapp.investment_app.exception.AccessDeniedException;
+import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
 import com.investmentapp.investment_app.model.*;
 import com.investmentapp.investment_app.repository.HoldingRepository;
+import com.investmentapp.investment_app.repository.InvestmentRepository;
 import com.investmentapp.investment_app.repository.PortfolioRepository;
 import com.investmentapp.investment_app.repository.TransactionRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
@@ -21,41 +26,42 @@ public class TransactionService {
     private final PortfolioRepository portfolioRepository;
     private final TransactionRepository transactionRepository;
     private final HoldingRepository holdingRepository;
+    private final InvestmentRepository investmentRepository;
 
     public TransactionService(PortfolioRepository portfolioRepository,
                               TransactionRepository transactionRepository,
-                              HoldingRepository holdingRepository) {
+                              HoldingRepository holdingRepository,InvestmentRepository investmentRepository) {
         this.portfolioRepository = portfolioRepository;
         this.transactionRepository = transactionRepository;
         this.holdingRepository = holdingRepository;
+        this.investmentRepository= investmentRepository;
     }
 
     @Transactional
     public TransactionDTO executeTransaction(TransactionDTO dto, @AuthenticationPrincipal User user) {
-        List<Portfolio> portfolios = portfolioRepository.findByUser(user);
+        // Fetch the portfolio directly using the ID from the request
+        Portfolio portfolio = portfolioRepository.findById(dto.getPortfolioId())
+                .orElseThrow(() -> new EntityNotFoundException("Portfolio not found"));
 
-        if (portfolios.isEmpty()) {
-            throw new EntityNotFoundException("No portfolios found for the user");
+        // Ensure the portfolio belongs to the authenticated user
+        if (!portfolio.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have access to this portfolio");
         }
-
-        Portfolio portfolio = portfolios.get(0);  // You may want to add logic for selecting a specific portfolio if the user has multiple portfolios.
 
         BigDecimal totalCost = dto.getPrice().multiply(BigDecimal.valueOf(dto.getQuantity()));
 
         if (dto.getType() == TransactionType.BUY) {
-            // Buying logic
             if (portfolio.getCurrentBalance().compareTo(totalCost) < 0) {
-                throw new IllegalArgumentException("Insufficient balance");
+                throw new InsufficientBalanceException("Insufficient balance.");
             }
             portfolio.setCurrentBalance(portfolio.getCurrentBalance().subtract(totalCost));
             updateHoldings(portfolio, dto.getStockSymbol(), dto.getQuantity(), dto.getPrice(), true);
         } else if (dto.getType() == TransactionType.SELL) {
-            // Selling logic
             Holding holding = holdingRepository.findByPortfolioIdAndStockSymbol(portfolio.getId(), dto.getStockSymbol())
                     .orElseThrow(() -> new NoHoldingsToSellException("No holdings to sell for stock: " + dto.getStockSymbol()));
 
             if (holding.getQuantity() < dto.getQuantity()) {
-                throw new IllegalArgumentException("Not enough shares to sell");
+                throw new IllegalArgumentException("Not enough shares to sell.");
             }
 
             holding.setQuantity(holding.getQuantity() - dto.getQuantity());
@@ -68,23 +74,28 @@ public class TransactionService {
             }
         }
 
-        // Set transaction details
+        Investment investment = investmentRepository.findBySymbol(dto.getStockSymbol())
+                .orElseGet(() -> {
+                    Investment newInvestment = new Investment();
+                    newInvestment.setSymbol(dto.getStockSymbol());
+                    return investmentRepository.save(newInvestment);
+                });
+
         Transaction transaction = new Transaction();
         transaction.setPortfolio(portfolio);
+        transaction.setInvestment(investment);
         transaction.setStockSymbol(dto.getStockSymbol());
         transaction.setQuantity(dto.getQuantity());
         transaction.setPrice(dto.getPrice());
         transaction.setTotalCost(totalCost);
-        transaction.setType(dto.getType()); // Set the type directly from DTO
-        transaction.setBuy(dto.getType() == TransactionType.BUY); // Set isBuy based on the type
+        transaction.setType(dto.getType());
+        transaction.setTransactionDate(LocalDateTime.now());
+
         transactionRepository.save(transaction);
         portfolioRepository.save(portfolio);
-        dto.setBuy(dto.getType() == TransactionType.BUY); // Ensure the 'buy' field in DTO is set correctly
 
         return dto;
     }
-
-
 
 
     private void updateHoldings(Portfolio portfolio, String stockSymbol, int quantity, BigDecimal price, boolean isBuy) {
@@ -92,7 +103,7 @@ public class TransactionService {
                 .orElseGet(() -> createNewHolding(portfolio, stockSymbol));
 
         if (isBuy) {
-            // Calculate new average price and total cost when buying
+            // Update holding when buying
             BigDecimal totalValue = price.multiply(BigDecimal.valueOf(quantity));
             BigDecimal currentAveragePrice = holding.getAveragePrice() == null ? BigDecimal.ZERO : holding.getAveragePrice();
             BigDecimal newTotalValue = currentAveragePrice.multiply(BigDecimal.valueOf(holding.getQuantity()))
@@ -103,12 +114,57 @@ public class TransactionService {
             holding.setAveragePrice(newAveragePrice);
             holding.setQuantity(newQuantity);
         } else {
-            // Logic for selling (not shown in full for brevity)
+            // Selling logic (not fully implemented in your code, should handle average price recalculation if necessary)
             holding.setQuantity(holding.getQuantity() - quantity);
         }
 
         holdingRepository.save(holding);
     }
+
+    public List<TransactionDTO> getTransactionHistory(User user) {
+        List<Portfolio> portfolios = portfolioRepository.findByUser(user);
+
+        if (portfolios.isEmpty()) {
+            throw new EntityNotFoundException("No portfolios found for the user");
+        }
+
+        List<Long> portfolioIds = portfolios.stream()
+                .map(Portfolio::getId)
+                .collect(Collectors.toList());
+
+        List<Transaction> transactions = transactionRepository.findByPortfolioIdIn(portfolioIds);
+
+        return transactions.stream()
+                .map(transaction -> new TransactionDTO(
+                        transaction.getPortfolio().getId(),
+                        transaction.getStockSymbol(),
+                        transaction.getType(),
+                        transaction.getQuantity(),
+                        transaction.getPrice(),
+                        transaction.getTransactionDate()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<TransactionDTO> getTransactionHistoryByPortfolioId(Long portfolioId) {
+        List<Transaction> transactions = transactionRepository.findByPortfolioIdIn(List.of(portfolioId));
+
+        if (transactions.isEmpty()) {
+            throw new EntityNotFoundException("No transactions found for the portfolio with ID: " + portfolioId);
+        }
+
+        return transactions.stream()
+                .map(transaction -> new TransactionDTO(
+                        transaction.getPortfolio().getId(),
+                        transaction.getStockSymbol(),
+                        transaction.getType(),
+                        transaction.getQuantity(),
+                        transaction.getPrice(),
+                        transaction.getTransactionDate()
+                ))
+                .collect(Collectors.toList());
+    }
+
 
     private Holding createNewHolding(Portfolio portfolio, String stockSymbol) {
         Holding holding = new Holding();
@@ -118,5 +174,4 @@ public class TransactionService {
         holding.setAveragePrice(BigDecimal.ZERO);  // Initialize average price
         return holding;
     }
-
 }

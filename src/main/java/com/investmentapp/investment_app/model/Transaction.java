@@ -16,15 +16,27 @@ public class Transaction {
     @JoinColumn(name = "portfolio_id", nullable = false)
     private Portfolio portfolio;
 
+    @ManyToOne
+    @JoinColumn(name = "investment_id", nullable = false)  // Add this reference to Investment
+    private Investment investment;
+
     private String stockSymbol;  // e.g., "AAPL"
     private int quantity;        // Number of shares bought/sold
     private BigDecimal price;    // Price per share
     private BigDecimal totalCost; // quantity * price
 
     private TransactionType type;
-    private boolean isBuy;       // true = buy, false = sell
 
-    private LocalDateTime timestamp = LocalDateTime.now();  // When the transaction happened
+    @Column(name = "transaction_date", nullable = false, updatable = false)
+    private LocalDateTime transactionDate = LocalDateTime.now(); // Auto-set when created
+
+    public Investment getInvestment() {
+        return investment;
+    }
+
+    public void setInvestment(Investment investment) {
+        this.investment = investment;
+    }
 
     public Long getId() {
         return id;
@@ -74,27 +86,19 @@ public class Transaction {
         this.totalCost = totalCost;
     }
 
-    public boolean isBuy() {
-        return isBuy;
-    }
-
-    public void setBuy(boolean buy) {
-        isBuy = buy;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public TransactionType getType() {
         return type;
     }
 
     public void setType(TransactionType type) {
         this.type = type;
+    }
+
+    public LocalDateTime getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDateTime transactionDate) {
+        this.transactionDate = transactionDate;
     }
 }

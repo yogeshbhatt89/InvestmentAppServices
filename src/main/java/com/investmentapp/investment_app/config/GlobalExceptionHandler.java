@@ -1,5 +1,7 @@
 package com.investmentapp.investment_app.config;
 
+import com.investmentapp.investment_app.exception.AccessDeniedException;
+import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InsufficientBalanceException.class)  // Add this handler
+    public ResponseEntity<Object> handleInsufficientBalance(InsufficientBalanceException ex) {
+        // Create a response object with a custom message
+        ErrorResponse errorResponse = new ErrorResponse("400", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)  // Add this handler
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
+        // Create a response object with a custom message
+        ErrorResponse errorResponse = new ErrorResponse("400", ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
         // Handle other argument exceptions

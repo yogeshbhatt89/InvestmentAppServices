@@ -189,6 +189,30 @@ public class FinnhubClient {
             throw new RuntimeException("Unexpected error: " + e.getMessage());
         }
     }
+
+    public List<CompanyNewsDTO> getCompanyNews(String symbol, String from, String to) {
+        String url = String.format("https://finnhub.io/api/v1/company-news?symbol=%s&from=%s&to=%s&token=%s", symbol, from, to, apiKey);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                logger.info("Finnhub API response: {}", response.body());
+                // Parse the response to a List of CompanyNewsDTO
+                return objectMapper.readValue(response.body(), new TypeReference<List<CompanyNewsDTO>>() {});
+            } else {
+                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
+                throw new RuntimeException("Error from Finnhub API: " + response.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Unexpected error: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error: " + e.getMessage());
+        }
+    }
+
     private String buildCompanyProfileUrl(String symbol, String isin, String cusip) {
         String url = String.format("https://finnhub.io/api/v1/stock/profile2?token=%s", apiKey);
 
@@ -204,6 +228,8 @@ public class FinnhubClient {
 
         return url;
     }
+
+
     public StockQuoteResponseDTO mapToDTO(Map<String, Object> jsonResponse) {
         StockQuoteResponseDTO dto = new StockQuoteResponseDTO();
 

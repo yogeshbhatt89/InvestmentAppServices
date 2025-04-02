@@ -161,4 +161,29 @@ public class InvestmentController {
         }
     }
 
+    @GetMapping("/companyNews")
+    public ResponseEntity<List<CompanyNewsDTO>> getCompanyNews(
+            @RequestParam String symbol,  // The company symbol (required)
+            @RequestParam String from,    // Start date in format YYYY-MM-DD (required)
+            @RequestParam String to,      // End date in format YYYY-MM-DD (required)
+            @AuthenticationPrincipal UserDetails principal) {
+
+        try {
+            // Log the authenticated user's username for debugging purposes
+            logger.info("Authenticated user: {}", principal.getUsername());
+
+            // Call the FinnhubClient to get the company news
+            List<CompanyNewsDTO> companyNews = finnhubClient.getCompanyNews(symbol, from, to);
+
+            // Return the company news wrapped in a ResponseEntity with HTTP status 200
+            return ResponseEntity.ok(companyNews);
+        } catch (Exception e) {
+            // Log and handle any error that occurs during the process
+            logger.error("Error fetching company news", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
 }
