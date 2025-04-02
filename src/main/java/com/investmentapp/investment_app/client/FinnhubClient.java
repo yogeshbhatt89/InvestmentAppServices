@@ -35,182 +35,45 @@ public class FinnhubClient {
 
     public StockQuoteResponseDTO getQuote(String symbol) {
         String url = String.format("https://finnhub.io/api/v1/quote?symbol=%s&token=%s", symbol, apiKey);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
+        Map<String, Object> jsonResponse = sendRequest(url);
 
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                logger.info("Finnhub API response: {}", response.body());
-                Map<String, Object> jsonResponse = objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-
-                if (jsonResponse.containsKey("error")) {
-                    logger.error("Finnhub API error: {}", jsonResponse.get("error"));
-                    return null;
-                }
-                return mapToDTO(jsonResponse);
-            } else {
-                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
-                return null;
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.error("Unexpected error: {}", e.getMessage(), e);
-            return null;
+        if (jsonResponse != null && !jsonResponse.containsKey("error")) {
+            return mapToDTO(jsonResponse);
         }
+        return null;
     }
 
     public List<StockSymbolDTO> getStockSymbols(String exchange, String mic, String securityType, String currency, int limit, int offset) {
         String url = String.format("https://finnhub.io/api/v1/stock/symbol?exchange=%s&mic=%s&securityType=%s&currency=%s&limit=%d&offset=%d&token=%s",
                 exchange, mic, securityType, currency, limit, offset, apiKey);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Check if status is 200
-            if (response.statusCode() == 200) {
-                logger.info("Finnhub API response: {}", response.body());
-
-                // Check for specific error in the response body, e.g., "You don't have access to this resource."
-                if (response.body().contains("error") || response.body().contains("You don't have access to this resource")) {
-                    logger.error("Finnhub API returned an error: {}", response.body());
-                    throw new RuntimeException("Finnhub API error: " + response.body());
-                }
-
-                // Return the response if no errors
-                return objectMapper.readValue(response.body(), new TypeReference<List<StockSymbolDTO>>() {});
-            } else {
-                // If status is not 200, log and throw an exception
-                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
-                throw new RuntimeException("Error from Finnhub API: " + response.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.error("Unexpected error: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error: " + e.getMessage());
-        }
+        return sendRequest(url, new TypeReference<List<StockSymbolDTO>>() {});
     }
 
     public SymbolLookupResponse symbolLookup(String query, String exchange) {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String encodedExchange = URLEncoder.encode(exchange, StandardCharsets.UTF_8);
         String url = String.format("https://finnhub.io/api/v1/search?q=%s&exchange=%s&token=%s", encodedQuery, encodedExchange, apiKey);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                logger.info("Finnhub API response: {}", response.body());
-
-                if (response.body().contains("error")) {
-                    logger.error("Finnhub API error: {}", response.body());
-                    throw new RuntimeException("Finnhub API error: " + response.body());
-                }
-
-                return objectMapper.readValue(response.body(), SymbolLookupResponse.class);
-            } else {
-                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
-                throw new RuntimeException("Error from Finnhub API: " + response.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.error("Unexpected error: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error: " + e.getMessage());
-        }
+        return sendRequest(url, SymbolLookupResponse.class);
     }
 
     public List<RecommendationTrendDTO> getRecommendationTrends(String symbol) {
         String url = String.format("https://finnhub.io/api/v1/stock/recommendation?symbol=%s&token=%s", symbol, apiKey);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                logger.info("Finnhub API response: {}", response.body());
-                List<RecommendationTrendDTO> trends = objectMapper.readValue(response.body(), new TypeReference<List<RecommendationTrendDTO>>() {});
-                return trends;
-            } else {
-                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
-                throw new RuntimeException("Error from Finnhub API: " + response.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.error("Unexpected error: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error: " + e.getMessage());
-        }
+        return sendRequest(url, new TypeReference<List<RecommendationTrendDTO>>() {});
     }
 
     public MarketStatusDTO getMarketStatus(String exchange) {
         String url = String.format("https://finnhub.io/api/v1/stock/market-status?exchange=%s&token=%s", exchange, apiKey);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                logger.info("Finnhub API response: {}", response.body());
-                return objectMapper.readValue(response.body(), MarketStatusDTO.class);
-            } else {
-                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
-                throw new RuntimeException("Error from Finnhub API: " + response.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.error("Unexpected error: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error: " + e.getMessage());
-        }
+        return sendRequest(url, MarketStatusDTO.class);
     }
 
     public CompanyProfileDTO getCompanyProfile(String symbol, String isin, String cusip) {
         String url = buildCompanyProfileUrl(symbol, isin, cusip);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                return objectMapper.readValue(response.body(), CompanyProfileDTO.class);
-            } else {
-                throw new RuntimeException("Error from Finnhub API: " + response.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Unexpected error: " + e.getMessage());
-        }
+        return sendRequest(url, CompanyProfileDTO.class);
     }
 
     public List<CompanyNewsDTO> getCompanyNews(String symbol, String from, String to) {
         String url = String.format("https://finnhub.io/api/v1/company-news?symbol=%s&from=%s&to=%s&token=%s", symbol, from, to, apiKey);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                logger.info("Finnhub API response: {}", response.body());
-                // Parse the response to a List of CompanyNewsDTO
-                return objectMapper.readValue(response.body(), new TypeReference<List<CompanyNewsDTO>>() {});
-            } else {
-                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
-                throw new RuntimeException("Error from Finnhub API: " + response.body());
-            }
-        } catch (IOException | InterruptedException e) {
-            logger.error("Unexpected error: {}", e.getMessage(), e);
-            throw new RuntimeException("Unexpected error: " + e.getMessage());
-        }
+        return sendRequest(url, new TypeReference<List<CompanyNewsDTO>>() {});
     }
 
     private String buildCompanyProfileUrl(String symbol, String isin, String cusip) {
@@ -229,8 +92,74 @@ public class FinnhubClient {
         return url;
     }
 
+    // General request handler for GET requests returning a Map<String, Object>
+    private Map<String, Object> sendRequest(String url) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
 
-    public StockQuoteResponseDTO mapToDTO(Map<String, Object> jsonResponse) {
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                logger.info("Finnhub API response: {}", response.body());
+                return objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+            } else {
+                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
+                throw new RuntimeException("Error from Finnhub API: " + response.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Unexpected error: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    // General request handler for GET requests returning a single DTO
+    private <T> T sendRequest(String url, Class<T> dtoClass) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                logger.info("Finnhub API response: {}", response.body());
+                return objectMapper.readValue(response.body(), dtoClass);
+            } else {
+                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
+                throw new RuntimeException("Error from Finnhub API: " + response.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Unexpected error: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    // General method for GET requests returning a list of DTOs
+    private <T> List<T> sendRequest(String url, TypeReference<List<T>> typeReference) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                logger.info("Finnhub API response: {}", response.body());
+                return objectMapper.readValue(response.body(), typeReference);
+            } else {
+                logger.error("Finnhub API error: {} - {}", response.statusCode(), response.body());
+                throw new RuntimeException("Error from Finnhub API: " + response.body());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Unexpected error: {}", e.getMessage(), e);
+            throw new RuntimeException("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    // General method for mapping response to DTO
+    private StockQuoteResponseDTO mapToDTO(Map<String, Object> jsonResponse) {
         StockQuoteResponseDTO dto = new StockQuoteResponseDTO();
 
         // Handling the fields that can be Double
@@ -254,6 +183,7 @@ public class FinnhubClient {
 
         return dto;
     }
+
     private Double getDouble(Object obj) {
         if (obj instanceof Number) {
             return ((Number) obj).doubleValue();
