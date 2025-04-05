@@ -6,13 +6,14 @@ import com.investmentapp.investment_app.model.Portfolio;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.PortfolioRepository;
 import com.investmentapp.investment_app.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,13 +38,14 @@ public class PortfolioService {
         Portfolio portfolio = new Portfolio();
         portfolio.setUser(user);
         portfolio.setName(dto.getName());
-        portfolio.setInitialBalance(dto.getInitialBalance());
-        portfolio.setCurrentBalance(dto.getInitialBalance());
+        portfolio.setInitialBalance(dto.getInitialBalance());  // Make sure this is BigDecimal
+        portfolio.setCurrentBalance(dto.getInitialBalance());  // Make sure this is BigDecimal
         portfolio.setRiskTolerance(dto.getRiskTolerance());
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
         return PortfolioMapper.toDTO(savedPortfolio);
     }
+
 
     // 2️⃣ Get User's Portfolios
     public List<PortfolioDTO> getUserPortfolios(String email) {
@@ -82,11 +84,11 @@ public class PortfolioService {
             throw new AccessDeniedException("You do not own this portfolio");
         }
 
-        if (dto.getInitialBalance() < 0) {
+        if (dto.getInitialBalance().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Initial balance must be non-negative");
         }
 
-        if (dto.getCurrentBalance() < 0) {
+        if (dto.getCurrentBalance().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Current balance must be non-negative");
         }
 

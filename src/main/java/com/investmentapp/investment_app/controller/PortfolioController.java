@@ -1,9 +1,12 @@
 package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.DTO.PortfolioDTO;
+import com.investmentapp.investment_app.model.Holding;
 import com.investmentapp.investment_app.model.User;
+import com.investmentapp.investment_app.repository.HoldingRepository;
 import com.investmentapp.investment_app.service.PortfolioService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,7 +16,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,11 +26,18 @@ import java.util.Map;
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
+    private final HoldingRepository holdingRepository;
 
-    public PortfolioController(PortfolioService portfolioService) {
+    // Refactor constructor to accept both dependencies
+    public PortfolioController(PortfolioService portfolioService, HoldingRepository holdingRepository) {
         this.portfolioService = portfolioService;
+        this.holdingRepository = holdingRepository;
     }
 
+    @GetMapping("/{id}/holdings")
+    public ResponseEntity<List<Holding>> getPortfolioHoldings(@PathVariable Long id) {
+        return ResponseEntity.ok(holdingRepository.findByPortfolioId(id));
+    }
     // 1️⃣ Create a portfolio
     @PostMapping
     public ResponseEntity<PortfolioDTO> createPortfolio(@RequestBody PortfolioDTO portfolioDTO, @AuthenticationPrincipal User user) {
