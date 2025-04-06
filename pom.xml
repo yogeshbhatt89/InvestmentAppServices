@@ -126,6 +126,12 @@
 			<version>2.18.2</version> <!-- Ensure it matches your Jackson version -->
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>6.6.4.Final</version>
+		</dependency>
 
 	</dependencies>
 
