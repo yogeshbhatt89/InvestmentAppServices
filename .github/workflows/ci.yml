@@ -1,0 +1,73 @@
+name: Spring Boot CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/*
+      - bugfix/*
+      - hotfix/*
+      - release/*
+      - test/*
+      - task/*
+  pull_request:
+    branches:
+      - main
+      - develop
+      - feature/*
+      - bugfix/*
+      - hotfix/*
+      - release/*
+      - test/*
+      - task/*
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run Checkstyle
+        run: mvn checkstyle:check
+
+      - name: Run SpotBugs
+        run: mvn spotbugs:check
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run Tests
+        run: mvn test
