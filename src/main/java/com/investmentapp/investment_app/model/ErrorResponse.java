@@ -1,4 +1,4 @@
-package com.investmentapp.investment_app.config;
+package com.investmentapp.investment_app.model;
 
 public class ErrorResponse {
     private String errorCode;

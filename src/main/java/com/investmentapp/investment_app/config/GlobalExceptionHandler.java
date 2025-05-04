@@ -3,6 +3,7 @@ package com.investmentapp.investment_app.config;
 import com.investmentapp.investment_app.exception.AccessDeniedException;
 import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
+import com.investmentapp.investment_app.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -37,6 +38,14 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("400", ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+//        Map<String, String> errors = new HashMap<>();
+//        ex.getBindingResult().getFieldErrors().forEach(error ->
+//                errors.put(error.getField(), error.getDefaultMessage())
+//        );
+//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+//    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex) {
@@ -44,4 +53,5 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse("400", "An unexpected error occurred");
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
 }
