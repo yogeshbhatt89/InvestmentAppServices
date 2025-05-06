@@ -49,6 +49,7 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/health").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/investments/**").permitAll()
                                 .requestMatchers("/me").hasAuthority("ROLE_USER")
                                 .requestMatchers(HttpMethod.GET, "/api/investments").hasAuthority("ROLE_USER")
                                 .anyRequest().authenticated())
