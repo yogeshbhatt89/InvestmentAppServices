@@ -2,14 +2,10 @@ package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.DTO.*;
 import com.investmentapp.investment_app.client.FinnhubClient;
-import com.investmentapp.investment_app.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@PreAuthorize("hasRole('ROLE_USER')")
+//@PreAuthorize("hasRole('ROLE_USER')")
 @RequestMapping("/api/investments")
 public class InvestmentController {
     private static final Logger logger = LoggerFactory.getLogger(InvestmentController.class);
@@ -33,8 +29,8 @@ public class InvestmentController {
 
 
     @GetMapping("/quote")
-    public ResponseEntity<StockQuoteResponseDTO> searchInvestment(@RequestParam String ticker, @AuthenticationPrincipal User user) {
-        logger.info("Received request for /api/investments/search with ticker: {} for user: {}", ticker, user.getEmail());
+    public ResponseEntity<StockQuoteResponseDTO> searchInvestment(@RequestParam String ticker) {
+        logger.info("Received request for /api/investments/search with ticker: {}", ticker);
 
         try {
             StockQuoteResponseDTO quote = finnhubClient.getQuote(ticker);
@@ -59,9 +55,9 @@ public class InvestmentController {
                                                               @RequestParam(required = false) String securityType,
                                                               @RequestParam(required = false) String currency,
                                                               @RequestParam(defaultValue = "10") int limit,
-                                                              @RequestParam(defaultValue = "0") int offset,
-                                                              @AuthenticationPrincipal User user) {
-        logger.info("Received request for /api/investments/searchSymbols with exchange: {} and user: {}", exchange, user.getEmail());
+                                                              @RequestParam(defaultValue = "0") int offset
+                                                           ) {
+        logger.info("Received request for /api/investments/searchSymbols with exchange: {}", exchange);
 
         try {
             List<StockSymbolDTO> symbols = finnhubClient.getStockSymbols(exchange, mic, securityType, currency, limit, offset);
@@ -78,9 +74,9 @@ public class InvestmentController {
 
     @GetMapping("/symbolLookup")
     public ResponseEntity<SymbolLookupResponse> symbolLookup(@RequestParam String q,
-                                                             @RequestParam(required = false) String exchange,
-                                                             @AuthenticationPrincipal User user) {
-        logger.info("Received request for /api/investments/symbolLookup with query: {} and user: {}", q, user.getEmail());
+                                                             @RequestParam(required = false) String exchange
+                                                             ) {
+        logger.info("Received request for /api/investments/symbolLookup with query: {}", q);
 
         try {
             SymbolLookupResponse response = finnhubClient.symbolLookup(q, exchange);
@@ -98,8 +94,8 @@ public class InvestmentController {
     }
 
     @GetMapping("/recommendationTrends")
-    public ResponseEntity<List<RecommendationTrendDTO>> getRecommendationTrends(@RequestParam String ticker, @AuthenticationPrincipal User user) {
-        logger.info("Received request for /api/investments/recommendationTrends with ticker: {} for user: {}", ticker, user.getEmail());
+    public ResponseEntity<List<RecommendationTrendDTO>> getRecommendationTrends(@RequestParam String ticker) {
+        logger.info("Received request for /api/investments/recommendationTrends with ticker: {}", ticker);
 
         try {
             List<RecommendationTrendDTO> trends = finnhubClient.getRecommendationTrends(ticker);
@@ -118,8 +114,8 @@ public class InvestmentController {
     }
 
     @GetMapping("/marketStatus")
-    public ResponseEntity<MarketStatusDTO> getMarketStatus(@RequestParam String exchange, @AuthenticationPrincipal User user) {
-        logger.info("Received request for /api/investments/marketStatus with exchange: {} for user: {}", exchange, user.getEmail());
+    public ResponseEntity<MarketStatusDTO> getMarketStatus(@RequestParam String exchange) {
+        logger.info("Received request for /api/investments/marketStatus with exchange: {}", exchange);
 
         try {
             MarketStatusDTO marketStatus = finnhubClient.getMarketStatus(exchange);
@@ -133,7 +129,7 @@ public class InvestmentController {
             }
         } catch (RuntimeException e) {
             logger.error("Error occurred while fetching market status: {}", e.getMessage());
-            MarketStatusDTO errorResponse = new MarketStatusDTO("Error: " + e.getMessage()); // Include error message
+            MarketStatusDTO errorResponse = new MarketStatusDTO("Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
@@ -142,13 +138,10 @@ public class InvestmentController {
     public ResponseEntity<CompanyProfileDTO> getCompanyProfile(
             @RequestParam(required = false) String symbol,
             @RequestParam(required = false) String isin,
-            @RequestParam(required = false) String cusip,
-            @AuthenticationPrincipal UserDetails principal) {
+            @RequestParam(required = false) String cusip
+          ) {
 
         try {
-            // Log the authenticated user's username for debugging purposes
-            logger.info("Authenticated user: {}", principal.getUsername());
-
             // Call the FinnhubClient to get the company profile
             CompanyProfileDTO companyProfile = finnhubClient.getCompanyProfile(symbol, isin, cusip);
 
@@ -165,13 +158,10 @@ public class InvestmentController {
     public ResponseEntity<List<CompanyNewsDTO>> getCompanyNews(
             @RequestParam String symbol,  // The company symbol (required)
             @RequestParam String from,    // Start date in format YYYY-MM-DD (required)
-            @RequestParam String to,      // End date in format YYYY-MM-DD (required)
-            @AuthenticationPrincipal UserDetails principal) {
+            @RequestParam String to      // End date in format YYYY-MM-DD (required)
+        ) {
 
         try {
-            // Log the authenticated user's username for debugging purposes
-            logger.info("Authenticated user: {}", principal.getUsername());
-
             // Call the FinnhubClient to get the company news
             List<CompanyNewsDTO> companyNews = finnhubClient.getCompanyNews(symbol, from, to);
 
