@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PreflightController {
 
-    @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
-    public ResponseEntity<?> handlePreflight() {
-        return ResponseEntity.ok().build();
-    }
+  @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
+  public ResponseEntity<?> handlePreflight() {
+    return ResponseEntity.ok().build();
+  }
 }

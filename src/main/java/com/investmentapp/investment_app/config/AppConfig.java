@@ -10,15 +10,15 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class AppConfig {
 
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    }
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper()
+        .registerModule(new JavaTimeModule())
+        .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+  }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
+  @Bean
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
+  }
 }
