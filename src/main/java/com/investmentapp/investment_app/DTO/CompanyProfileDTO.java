@@ -1,121 +1,123 @@
 package com.investmentapp.investment_app.DTO;
 
 public class CompanyProfileDTO {
-    private String country;
-    private String currency;
-    private String exchange;
-    private String finnhubIndustry;
-    private String ipo;
-    private String logo;
-    private double marketCapitalization;
-    private String name;
-    private String phone;
-    private double shareOutstanding;
-    private String ticker;
-    private String weburl;
-    private String estimateCurrency;
-    // Getters and Setters
+  private String country;
+  private String currency;
+  private String exchange;
+  private String finnhubIndustry;
+  private String ipo;
+  private String logo;
+  private double marketCapitalization;
+  private String name;
+  private String phone;
+  private double shareOutstanding;
+  private String ticker;
+  private String weburl;
+  private String estimateCurrency;
 
-    public String getEstimateCurrency() {
-        return estimateCurrency;
-    }
+  // Getters and Setters
 
-    public void setEstimateCurrency(String estimateCurrency) {
-        this.estimateCurrency = estimateCurrency;
-    }
-    public String getCountry() {
-        return country;
-    }
+  public String getEstimateCurrency() {
+    return estimateCurrency;
+  }
 
-    public void setCountry(String country) {
-        this.country = country;
-    }
+  public void setEstimateCurrency(String estimateCurrency) {
+    this.estimateCurrency = estimateCurrency;
+  }
 
-    public String getCurrency() {
-        return currency;
-    }
+  public String getCountry() {
+    return country;
+  }
 
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
+  public void setCountry(String country) {
+    this.country = country;
+  }
 
-    public String getExchange() {
-        return exchange;
-    }
+  public String getCurrency() {
+    return currency;
+  }
 
-    public void setExchange(String exchange) {
-        this.exchange = exchange;
-    }
+  public void setCurrency(String currency) {
+    this.currency = currency;
+  }
 
-    public String getFinnhubIndustry() {
-        return finnhubIndustry;
-    }
+  public String getExchange() {
+    return exchange;
+  }
 
-    public void setFinnhubIndustry(String finnhubIndustry) {
-        this.finnhubIndustry = finnhubIndustry;
-    }
+  public void setExchange(String exchange) {
+    this.exchange = exchange;
+  }
 
-    public String getIpo() {
-        return ipo;
-    }
+  public String getFinnhubIndustry() {
+    return finnhubIndustry;
+  }
 
-    public void setIpo(String ipo) {
-        this.ipo = ipo;
-    }
+  public void setFinnhubIndustry(String finnhubIndustry) {
+    this.finnhubIndustry = finnhubIndustry;
+  }
 
-    public String getLogo() {
-        return logo;
-    }
+  public String getIpo() {
+    return ipo;
+  }
 
-    public void setLogo(String logo) {
-        this.logo = logo;
-    }
+  public void setIpo(String ipo) {
+    this.ipo = ipo;
+  }
 
-    public double getMarketCapitalization() {
-        return marketCapitalization;
-    }
+  public String getLogo() {
+    return logo;
+  }
 
-    public void setMarketCapitalization(double marketCapitalization) {
-        this.marketCapitalization = marketCapitalization;
-    }
+  public void setLogo(String logo) {
+    this.logo = logo;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public double getMarketCapitalization() {
+    return marketCapitalization;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setMarketCapitalization(double marketCapitalization) {
+    this.marketCapitalization = marketCapitalization;
+  }
 
-    public String getPhone() {
-        return phone;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public double getShareOutstanding() {
-        return shareOutstanding;
-    }
+  public String getPhone() {
+    return phone;
+  }
 
-    public void setShareOutstanding(double shareOutstanding) {
-        this.shareOutstanding = shareOutstanding;
-    }
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
 
-    public String getTicker() {
-        return ticker;
-    }
+  public double getShareOutstanding() {
+    return shareOutstanding;
+  }
 
-    public void setTicker(String ticker) {
-        this.ticker = ticker;
-    }
+  public void setShareOutstanding(double shareOutstanding) {
+    this.shareOutstanding = shareOutstanding;
+  }
 
-    public String getWeburl() {
-        return weburl;
-    }
+  public String getTicker() {
+    return ticker;
+  }
 
-    public void setWeburl(String weburl) {
-        this.weburl = weburl;
-    }
+  public void setTicker(String ticker) {
+    this.ticker = ticker;
+  }
+
+  public String getWeburl() {
+    return weburl;
+  }
+
+  public void setWeburl(String weburl) {
+    this.weburl = weburl;
+  }
 }

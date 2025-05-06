@@ -2,108 +2,116 @@ package com.investmentapp.investment_app.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 public class CompanyNewsDTO {
-    private String category;
-    private Long datetime;
-    private String headline;
-    private String id;
-    private String image;
+  private String category;
+  private Long datetime;
+  private String headline;
+  private String id;
+  private String image;
 
-    @JsonProperty("related")
-    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-    private List<String> related;
-    private String source;
-    private String summary;
-    private String url;
+  @JsonProperty("related")
+  @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+  private List<String> related;
 
-    public CompanyNewsDTO() {
-    }
+  private String source;
+  private String summary;
+  private String url;
 
-    public CompanyNewsDTO(String category, Long datetime, String headline, String id, String image, List<String> related, String source, String summary, String url) {
-        this.category = category;
-        this.datetime = datetime;
-        this.headline = headline;
-        this.id = id;
-        this.image = image;
-        this.related = related;
-        this.source = source;
-        this.summary = summary;
-        this.url = url;
-    }
+  public CompanyNewsDTO() {}
 
-    // Getters and Setters
-    public String getCategory() {
-        return category;
-    }
+  public CompanyNewsDTO(
+      String category,
+      Long datetime,
+      String headline,
+      String id,
+      String image,
+      List<String> related,
+      String source,
+      String summary,
+      String url) {
+    this.category = category;
+    this.datetime = datetime;
+    this.headline = headline;
+    this.id = id;
+    this.image = image;
+    this.related = related;
+    this.source = source;
+    this.summary = summary;
+    this.url = url;
+  }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+  // Getters and Setters
+  public String getCategory() {
+    return category;
+  }
 
-    public Long getDatetime() {
-        return datetime;
-    }
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    public void setDatetime(Long datetime) {
-        this.datetime = datetime;
-    }
+  public Long getDatetime() {
+    return datetime;
+  }
 
-    public String getHeadline() {
-        return headline;
-    }
+  public void setDatetime(Long datetime) {
+    this.datetime = datetime;
+  }
 
-    public void setHeadline(String headline) {
-        this.headline = headline;
-    }
+  public String getHeadline() {
+    return headline;
+  }
 
-    public String getId() {
-        return id;
-    }
+  public void setHeadline(String headline) {
+    this.headline = headline;
+  }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public String getImage() {
-        return image;
-    }
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    public void setImage(String image) {
-        this.image = image;
-    }
+  public String getImage() {
+    return image;
+  }
 
-    public List<String> getRelated() {
-        return related;
-    }
+  public void setImage(String image) {
+    this.image = image;
+  }
 
-    public void setRelated(List<String> related) {
-        this.related = related;
-    }
+  public List<String> getRelated() {
+    return related;
+  }
 
-    public String getSource() {
-        return source;
-    }
+  public void setRelated(List<String> related) {
+    this.related = related;
+  }
 
-    public void setSource(String source) {
-        this.source = source;
-    }
+  public String getSource() {
+    return source;
+  }
 
-    public String getSummary() {
-        return summary;
-    }
+  public void setSource(String source) {
+    this.source = source;
+  }
 
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
+  public String getSummary() {
+    return summary;
+  }
 
-    public String getUrl() {
-        return url;
-    }
+  public void setSummary(String summary) {
+    this.summary = summary;
+  }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
 }

@@ -43,9 +43,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-#      - name: Run Checkstyle
-#        run: mvn checkstyle:check
-#
+      - name: Run Spotless Check (Fail if unformatted)
+        run: mvn spotless:check
+
       - name: Run SpotBugs
         run: mvn spotbugs:check
 
