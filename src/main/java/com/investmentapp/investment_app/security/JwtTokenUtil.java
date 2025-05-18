@@ -21,13 +21,13 @@ public class JwtTokenUtil {
 
   public String generateAccessToken(User user) {
     List<String> roles =
-        user.getRolesAsString().stream().map(role -> "ROLE_" + role).collect(Collectors.toList());
+        user.getRoles().stream().map(role -> "ROLE_" + role).collect(Collectors.toList());
 
     return Jwts.builder()
         .subject(user.getEmail())
         .claim("username", user.getUsername())
         .claim("roles", roles)
-        .claim("fullName", user.getFullName())
+        .claim("fullName", user.getFirstName())
         .issuedAt(new Date())
         .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
         .signWith(SECRET_KEY)
