@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                                 .requestMatchers("/me").hasAuthority("ROLE_USER")
                                 .requestMatchers(HttpMethod.GET, "/api/investments").hasAuthority("ROLE_USER")
+                                .requestMatchers(HttpMethod.DELETE, "/api/auth/delete/*").hasAuthority("ROLE_ADMIN")
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();

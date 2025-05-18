@@ -21,6 +21,7 @@ public class Portfolio {
     private String riskTolerance;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     private LocalDateTime createdAt;

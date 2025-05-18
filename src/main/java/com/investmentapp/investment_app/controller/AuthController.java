@@ -1,17 +1,21 @@
 package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
+import com.investmentapp.investment_app.exception.UserNotFoundException;
 import com.investmentapp.investment_app.model.User;
+import com.investmentapp.investment_app.request.CreateUserRequest;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
 import com.investmentapp.investment_app.service.AuthService;
 import com.investmentapp.investment_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,13 +31,10 @@ public class AuthController {
 
     // Register user
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> register(@RequestBody CreateUserRequest registerRequest) {
         try {
-            User user = userService.registerUser(
-                    registerRequest.getFullName(),
-                    registerRequest.getEmail(),
-                    registerRequest.getPassword(),
-                    registerRequest.getUsername()
+            User user = userService.createUser(
+                   registerRequest
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(user);
         } catch (EmailAlreadyExistsException e) {
@@ -42,6 +43,20 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable UUID userId) {
+        try {
+            userService.deleteUser(userId);
+            return ResponseEntity.status(200).body("User deleted successfully");
+        }catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+
 
     // Login user and return JWT tokens
     @PostMapping("/login")

@@ -21,7 +21,7 @@ public class JwtTokenUtil {
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7; // 7 days
 
     public String generateAccessToken(User user) {
-        List<String> roles = user.getRolesAsString().stream()
+         List<String> roles = user.getRoles().stream()
                 .map(role -> "ROLE_" + role)
                 .collect(Collectors.toList());
 
@@ -29,7 +29,7 @@ public class JwtTokenUtil {
                 .subject(user.getEmail())
                 .claim("username", user.getUsername())
                 .claim("roles", roles)
-                .claim("fullName", user.getFullName())
+                .claim("fullName", user.getFirstName())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
                 .signWith(SECRET_KEY)
