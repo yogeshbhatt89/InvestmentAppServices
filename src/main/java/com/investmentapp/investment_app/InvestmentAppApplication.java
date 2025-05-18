@@ -2,12 +2,12 @@ package com.investmentapp.investment_app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 public class InvestmentAppApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(InvestmentAppApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(InvestmentAppApplication.class, args);
+  }
 }

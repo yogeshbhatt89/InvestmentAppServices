@@ -1,48 +1,48 @@
 package com.investmentapp.investment_app.DTO;
 
 public class SymbolDTO {
-    private String description;
-    private String displaySymbol;
-    private String symbol;
-    private String type;
+  private String description;
+  private String displaySymbol;
+  private String symbol;
+  private String type;
 
-    public SymbolDTO() {
-        // No-argument constructor
-    }
-    public SymbolDTO(String description) {
-        this.description = description;
-    }
-    public String getDescription() {
-        return description;
-    }
+  public SymbolDTO() {
+    // No-argument constructor
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public SymbolDTO(String description) {
+    this.description = description;
+  }
 
-    public String getDisplaySymbol() {
-        return displaySymbol;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public void setDisplaySymbol(String displaySymbol) {
-        this.displaySymbol = displaySymbol;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public String getSymbol() {
-        return symbol;
-    }
+  public String getDisplaySymbol() {
+    return displaySymbol;
+  }
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
+  public void setDisplaySymbol(String displaySymbol) {
+    this.displaySymbol = displaySymbol;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getSymbol() {
+    return symbol;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setSymbol(String symbol) {
+    this.symbol = symbol;
+  }
 
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
 }
-
