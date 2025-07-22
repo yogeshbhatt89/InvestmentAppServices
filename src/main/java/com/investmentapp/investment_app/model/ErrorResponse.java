@@ -1,28 +1,19 @@
 package com.investmentapp.investment_app.model;
 
 public class ErrorResponse {
-  private String errorCode;
-  private String errorMessage;
+  private Error error;
 
-  public ErrorResponse(String errorCode, String errorMessage) {
-    this.errorCode = errorCode;
-    this.errorMessage = errorMessage;
+  public ErrorResponse(Integer errorCode, String errorMessage, String errorDetail) {
+    this.error = new Error(errorCode, errorMessage, errorDetail);
   }
 
   // Getters and setters
-  public String getErrorCode() {
-    return errorCode;
+
+  public Error getError() {
+    return error;
   }
 
-  public void setErrorCode(String errorCode) {
-    this.errorCode = errorCode;
-  }
-
-  public String getErrorMessage() {
-    return errorMessage;
-  }
-
-  public void setErrorMessage(String errorMessage) {
-    this.errorMessage = errorMessage;
+  public void setError(Error error) {
+    this.error = error;
   }
 }
