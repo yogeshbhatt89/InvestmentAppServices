@@ -2,6 +2,8 @@ package com.investmentapp.investment_app.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class CompanyNewsDTO {
@@ -84,7 +86,7 @@ public class CompanyNewsDTO {
   }
 
   public List<String> getRelated() {
-    return related;
+    return related == null ? null : new ArrayList<>(related);
   }
 
   public void setRelated(List<String> related) {
