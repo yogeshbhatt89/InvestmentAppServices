@@ -31,7 +31,8 @@ public class AuthController {
               registerRequest.getFullName(),
               registerRequest.getEmail(),
               registerRequest.getPassword(),
-              registerRequest.getUsername());
+              registerRequest.getUsername(),
+              registerRequest.getRoles());
       return ResponseEntity.status(HttpStatus.CREATED).body(user);
     } catch (EmailAlreadyExistsException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
