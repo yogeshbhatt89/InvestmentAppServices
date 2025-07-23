@@ -1,17 +1,16 @@
-//package com.investmentapp.investment_app.config;
+// package com.investmentapp.investment_app.config;
 //
-//import jakarta.persistence.AttributeConverter;
-//import jakarta.persistence.Converter;
+// import jakarta.persistence.AttributeConverter;
+// import jakarta.persistence.Converter;
 //
-//import java.sql.Timestamp;
-//import java.time.LocalDateTime;
+// import java.sql.Timestamp;
+// import java.time.LocalDateTime;
 //
 
 // Needs more context to determine if this is needed
 
-
-//@Converter(autoApply = true)
-//public class LocalDateTimeAttributeConverter
+// @Converter(autoApply = true)
+// public class LocalDateTimeAttributeConverter
 //        implements AttributeConverter<LocalDateTime, Timestamp> {
 //
 //    @Override
@@ -29,4 +28,4 @@
 //    public LocalDateTime convertToEntityAttribute(Timestamp dbData) {
 //        return dbData == null ? null : dbData.toLocalDateTime();
 //    }
-//}
+// }

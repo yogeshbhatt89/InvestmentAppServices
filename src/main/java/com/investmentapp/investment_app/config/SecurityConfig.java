@@ -3,6 +3,7 @@ package com.investmentapp.investment_app.config;
 import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtAuthorizationFilter;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -28,8 +27,7 @@ public class SecurityConfig {
   private final JwtTokenUtil jwtTokenUtil;
   private final UserRepository userRepository;
 
-    @Autowired
-    CustomAccessDeniedHandler customHandler;
+  @Autowired CustomAccessDeniedHandler customHandler;
 
   public SecurityConfig(JwtTokenUtil jwtTokenUtil, UserRepository userRepository) {
     this.jwtTokenUtil = jwtTokenUtil;
@@ -75,9 +73,7 @@ public class SecurityConfig {
                     .hasAuthority("ROLE_ADMIN")
                     .anyRequest()
                     .authenticated())
-            .exceptionHandling(exception -> exception
-                    .accessDeniedHandler(customHandler)
-            )
+        .exceptionHandling(exception -> exception.accessDeniedHandler(customHandler))
         .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
         .build();
   }

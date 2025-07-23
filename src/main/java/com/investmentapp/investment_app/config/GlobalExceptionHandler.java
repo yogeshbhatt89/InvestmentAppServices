@@ -4,14 +4,13 @@ import com.investmentapp.investment_app.exception.AccessDeniedException;
 import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
 import com.investmentapp.investment_app.model.ErrorResponse;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -60,5 +59,4 @@ public class GlobalExceptionHandler {
     ErrorResponse errorResponse = new ErrorResponse("400", "An unexpected error occurred");
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
-
 }
