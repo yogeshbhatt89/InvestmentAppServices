@@ -3,7 +3,6 @@ package com.investmentapp.investment_app.config;
 import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtAuthorizationFilter;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
-import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -62,6 +63,12 @@ public class SecurityConfig {
                     .hasAuthority("ROLE_USER")
                     .requestMatchers(HttpMethod.GET, "/api/investments")
                     .hasAuthority("ROLE_USER")
+                    .requestMatchers(HttpMethod.DELETE, "/api/users/**")
+                    .hasAuthority("ROLE_ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/users/**")
+                    .hasAuthority("ROLE_ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/users")
+                    .hasAuthority("ROLE_ADMIN")
                     .anyRequest()
                     .authenticated())
         .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)

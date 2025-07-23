@@ -8,6 +8,7 @@ import com.investmentapp.investment_app.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,16 +20,15 @@ public class UserService {
 
   @Autowired private PasswordEncoder passwordEncoder;
 
-  public User registerUser(String fullName, String email, String password, String username) {
+  public User registerUser(
+      String fullName, String email, String password, String username, Set<Role> roles) {
     // Check if the email already exists
     if (userRepository.findByEmail(email).isPresent()) {
       throw new EmailAlreadyExistsException("Email already exists!");
     }
 
-    // Hash the password
     String passwordHash = passwordEncoder.encode(password);
 
-    // Create a new User object
     User user = new User();
     user.setFullName(fullName);
     user.setEmail(email);
@@ -36,10 +36,8 @@ public class UserService {
     user.setUsername(username);
     user.setCreatedAt(LocalDateTime.now());
 
-    if (user.getRoles() == null) {
-      user.setRoles(Set.of(Role.USER)); // Assign default role (USER)
-    }
-    // Save the user to the database
+    user.setRoles(roles == null || roles.isEmpty() ? Set.of(Role.USER) : roles);
+
     return userRepository.save(user);
   }
 
@@ -71,5 +69,12 @@ public class UserService {
   // Get user details by email
   public Optional<User> getUserByEmail(String email) {
     return userRepository.findByEmail(email);
+  }
+
+  public void deleteUserById(UUID id) {
+    if (!userRepository.existsById(id)) {
+      throw new UserNotFoundException("User with ID " + id + " not found.");
+    }
+    userRepository.deleteById(id);
   }
 }
