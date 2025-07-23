@@ -1,17 +1,20 @@
 package com.investmentapp.investment_app.service;
 
+import com.investmentapp.investment_app.DTO.UserDTO;
 import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
 import com.investmentapp.investment_app.exception.UserNotFoundException;
 import com.investmentapp.investment_app.model.Role;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.UserRepository;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -76,5 +79,21 @@ public class UserService {
       throw new UserNotFoundException("User with ID " + id + " not found.");
     }
     userRepository.deleteById(id);
+  }
+
+  /**
+   * Fetches all users from the database.
+   * @return a list of User entities (you may want to map to DTOs)
+   */
+  public List<UserDTO> getAllUsers() {
+    return userRepository.findAll().stream()
+            .map(u -> new UserDTO(
+                    u.getId(),
+                    u.getUsername(),
+                    u.getEmail(),
+                    u.getRoles().stream().map(Role::name).toList(),
+                    u.getCreatedAt().toString()
+            ))
+            .toList();
   }
 }

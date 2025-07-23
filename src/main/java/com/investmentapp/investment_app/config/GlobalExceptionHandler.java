@@ -4,13 +4,14 @@ import com.investmentapp.investment_app.exception.AccessDeniedException;
 import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
 import com.investmentapp.investment_app.model.ErrorResponse;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -60,15 +61,4 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
-  public ResponseEntity<?> handleAccessDenied(Exception ex) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(
-            Map.of(
-                "error",
-                Map.of(
-                    "code", 403,
-                    "message", "Forbidden",
-                    "details", "You do not have permission to perform this action")));
-  }
 }

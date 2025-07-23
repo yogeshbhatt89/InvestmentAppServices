@@ -3,6 +3,7 @@ package com.investmentapp.investment_app.config;
 import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtAuthorizationFilter;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -26,6 +27,9 @@ public class SecurityConfig {
 
   private final JwtTokenUtil jwtTokenUtil;
   private final UserRepository userRepository;
+
+    @Autowired
+    CustomAccessDeniedHandler customHandler;
 
   public SecurityConfig(JwtTokenUtil jwtTokenUtil, UserRepository userRepository) {
     this.jwtTokenUtil = jwtTokenUtil;
@@ -71,6 +75,9 @@ public class SecurityConfig {
                     .hasAuthority("ROLE_ADMIN")
                     .anyRequest()
                     .authenticated())
+            .exceptionHandling(exception -> exception
+                    .accessDeniedHandler(customHandler)
+            )
         .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
         .build();
   }
