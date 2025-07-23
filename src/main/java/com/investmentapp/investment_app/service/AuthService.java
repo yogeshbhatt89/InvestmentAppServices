@@ -1,5 +1,6 @@
 package com.investmentapp.investment_app.service;
 
+import com.investmentapp.investment_app.exception.InvalidCredentialsException;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
@@ -43,11 +44,11 @@ public class AuthService {
       User user = getUserByEmail(email);
 
       if (user == null) {
-        throw new RuntimeException("User not found for email: " + email);
+        throw new InvalidCredentialsException("User not found for email: " + email);
       }
       return jwtTokenUtil.generateAccessToken(user);
     }
-    throw new RuntimeException("Invalid or expired refresh token");
+    throw new InvalidCredentialsException("Invalid or expired refresh token");
   }
 
   // Validate the access token

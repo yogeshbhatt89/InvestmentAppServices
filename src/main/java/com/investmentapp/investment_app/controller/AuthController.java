@@ -1,6 +1,8 @@
 package com.investmentapp.investment_app.controller;
 
-import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
+import com.investmentapp.investment_app.exception.InvalidCredentialsException;
+import com.investmentapp.investment_app.exception.RefreshTokenMissingException;
+import com.investmentapp.investment_app.exception.UserNotFoundException;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
 import com.investmentapp.investment_app.service.AuthService;
@@ -25,20 +27,13 @@ public class AuthController {
   // Register user
   @PostMapping("/register")
   public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-    try {
-      User user =
-          userService.registerUser(
-              registerRequest.getFullName(),
-              registerRequest.getEmail(),
-              registerRequest.getPassword(),
-              registerRequest.getUsername());
-      return ResponseEntity.status(HttpStatus.CREATED).body(user);
-    } catch (EmailAlreadyExistsException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An error occurred: " + e.getMessage());
-    }
+    User user =
+            userService.registerUser(
+                    registerRequest.getFullName(),
+                    registerRequest.getEmail(),
+                    registerRequest.getPassword(),
+                    registerRequest.getUsername());
+    return ResponseEntity.status(HttpStatus.CREATED).body(user);
   }
 
   // Login user and return JWT tokens
@@ -54,9 +49,8 @@ public class AuthController {
       Map<String, String> tokens = authService.generateTokens(user); // Pass user object
 
       return ResponseEntity.ok(tokens);
-    } else {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
+    throw new InvalidCredentialsException("Invalid credentials");
   }
 
   // Refresh access token
@@ -65,15 +59,11 @@ public class AuthController {
     String refreshToken = request.get("refreshToken");
 
     if (refreshToken == null) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refresh token is required");
+      throw new RefreshTokenMissingException("Refresh token is required");
     }
 
-    try {
-      String newAccessToken = authService.refreshAccessToken(refreshToken);
-      return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
-    } catch (RuntimeException e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-    }
+    String newAccessToken = authService.refreshAccessToken(refreshToken);
+    return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
   }
 
   @GetMapping("/me")
@@ -82,8 +72,7 @@ public class AuthController {
     try {
       // Check if Authorization header is present and starts with "Bearer "
       if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("Authorization header is missing or invalid");
+        throw new InvalidCredentialsException("Authorization header is missing or invalid");
       }
 
       // Extract token from the header
@@ -91,7 +80,7 @@ public class AuthController {
 
       // Validate token
       if (!jwtTokenUtil.validateToken(token)) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+        throw new InvalidCredentialsException("Invalid or expired token");
       }
 
       // Extract username (or email) from the token
@@ -103,8 +92,10 @@ public class AuthController {
         User user = userOptional.get();
         return ResponseEntity.ok(user); // No more role check here
       } else {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
+        throw new UserNotFoundException("User not found");
       }
+    } catch (InvalidCredentialsException | UserNotFoundException ex) {
+      throw ex;
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("Failed to retrieve user details: " + e.getMessage());
