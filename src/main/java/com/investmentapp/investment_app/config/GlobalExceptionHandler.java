@@ -85,13 +85,9 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
   public ResponseEntity<?> handleAccessDenied(Exception ex) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(
-            Map.of(
-                "error",
-                Map.of(
-                    "code", 403,
-                    "message", "Forbidden",
-                    "details", "You do not have permission to perform this action")));
+    ErrorResponse errorResponse =
+        new ErrorResponse(
+            HttpStatus.FORBIDDEN, "You do not have permission to perform this action");
+    return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
   }
 }
