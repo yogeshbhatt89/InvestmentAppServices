@@ -93,4 +93,16 @@ public class GlobalExceptionHandler {
             ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
+
+  @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+  public ResponseEntity<?> handleAccessDenied(Exception ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(
+            Map.of(
+                "error",
+                Map.of(
+                    "code", 403,
+                    "message", "Forbidden",
+                    "details", "You do not have permission to perform this action")));
+  }
 }

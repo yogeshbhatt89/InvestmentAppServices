@@ -194,8 +194,9 @@
 				<executions>
 					<execution>
 						<id>format-java</id>
-						<phase>validate</phase>
+<!--						<phase>validate</phase>-->
 						<goals>
+							<goal>check</goal>
 							<goal>apply</goal>
 						</goals>
 					</execution>
