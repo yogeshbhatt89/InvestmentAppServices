@@ -69,7 +69,7 @@ public class AuthController {
 
   @GetMapping("/me")
   public ResponseEntity<?> getLoggedInUser(
-      @RequestHeader("Authorization") String authorizationHeader) {
+      @RequestHeader("Authorization") String authorizationHeader) throws Exception {
     try {
       // Check if Authorization header is present and starts with "Bearer "
       if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -98,8 +98,7 @@ public class AuthController {
     } catch (InvalidCredentialsException | UserNotFoundException ex) {
       throw ex;
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("Failed to retrieve user details: " + e.getMessage());
+      throw new Exception("Failed to retrieve user details: " + e.getMessage());
     }
   }
 }

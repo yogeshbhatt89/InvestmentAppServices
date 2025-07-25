@@ -1,6 +1,5 @@
 package com.investmentapp.investment_app.controller;
 
-import com.investmentapp.investment_app.exception.UserNotFoundException;
 import com.investmentapp.investment_app.service.UserService;
 import java.util.Map;
 import java.util.UUID;
@@ -25,41 +24,19 @@ public class AdminController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-    try {
-      userService.deleteUserById(id);
+    userService.deleteUserById(id);
 
-      Map<String, Object> successBody =
-          Map.of(
-              "success",
-              Map.of(
-                  "code",
-                  204,
-                  "message",
-                  "User successfully deleted",
-                  "details",
-                  "User with ID " + id + " was deleted"));
+    Map<String, Object> successBody =
+        Map.of(
+            "success",
+            Map.of(
+                "code",
+                204,
+                "message",
+                "User successfully deleted",
+                "details",
+                "User with ID " + id + " was deleted"));
 
-      return ResponseEntity.status(HttpStatus.OK).body(successBody);
-
-    } catch (UserNotFoundException ex) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body(
-              Map.of(
-                  "error",
-                  Map.of(
-                      "code", 404, "message", "Resource not found", "details", ex.getMessage())));
-    } catch (Exception ex) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body(
-              Map.of(
-                  "error",
-                  Map.of(
-                      "code",
-                      500,
-                      "message",
-                      "Internal server error",
-                      "details",
-                      ex.getMessage())));
-    }
+    return ResponseEntity.status(HttpStatus.OK).body(successBody);
   }
 }
