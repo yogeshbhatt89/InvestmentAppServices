@@ -1,10 +1,12 @@
 package com.investmentapp.investment_app.model;
 
+import org.springframework.http.HttpStatus;
+
 public class ErrorResponse {
   private Error error;
 
-  public ErrorResponse(Integer errorCode, String errorMessage, String errorDetail) {
-    this.error = new Error(errorCode, errorMessage, errorDetail);
+  public ErrorResponse(HttpStatus httpStatus, String errorDetail) {
+    this.error = new Error(httpStatus.value(), httpStatus.getReasonPhrase(), errorDetail);
   }
 
   // Getters and setters

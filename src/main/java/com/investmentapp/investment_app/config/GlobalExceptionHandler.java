@@ -16,60 +16,52 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(NoHoldingsToSellException.class)
   public ResponseEntity<Object> handleNoHoldingsToSell(NoHoldingsToSellException ex) {
     // Create a response object with a custom message
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "No holdings to sell", ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(InsufficientBalanceException.class) // Add this handler
   public ResponseEntity<Object> handleInsufficientBalance(InsufficientBalanceException ex) {
     // Create a response object with a custom message
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(AccessDeniedException.class) // Add this handler
   public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
     // Create a response object with a custom message
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
     // Handle other argument exceptions
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(EmailAlreadyExistsException.class)
   public ResponseEntity<Object> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(InvalidCredentialsException.class)
   public ResponseEntity<Object> handleInvalidCredentials(InvalidCredentialsException ex) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
   }
 
   @ExceptionHandler(RefreshTokenMissingException.class)
   public ResponseEntity<Object> handleRefreshTokenMissing(RefreshTokenMissingException ex) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(UserNotFoundException.class)
   public ResponseEntity<Object> handleUserNotFound(UserNotFoundException ex) {
-    ErrorResponse errorResponse =
-        new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage(), ex.getMessage());
+    ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
   }
 
@@ -87,10 +79,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Object> handleGenericException(Exception ex) {
     // Handle generic exceptions
     ErrorResponse errorResponse =
-        new ErrorResponse(
-            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            "An unexpected error occurred",
-            ex.getMessage());
+        new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
