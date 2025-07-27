@@ -1,6 +1,8 @@
 package com.investmentapp.investment_app.model;
 
 import jakarta.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.*;
@@ -12,7 +14,8 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "investment")
-public class Investment {
+public class Investment implements Serializable {
+  @Serial private static final long serialVersionUID = 3L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

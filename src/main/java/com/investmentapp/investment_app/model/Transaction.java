@@ -3,11 +3,12 @@ package com.investmentapp.investment_app.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.investmentapp.investment_app.enums.TransactionType;
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import lombok.*;
 
 @Getter
 @Setter
@@ -33,7 +34,7 @@ public class Transaction implements Serializable {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "investment_id", nullable = false)
   @JsonIgnore
-  private Investment investment;
+  private transient Investment investment;
 
   private String stockSymbol;
   private int quantity;
