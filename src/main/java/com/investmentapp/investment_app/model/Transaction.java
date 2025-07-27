@@ -3,12 +3,11 @@ package com.investmentapp.investment_app.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.investmentapp.investment_app.enums.TransactionType;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter
