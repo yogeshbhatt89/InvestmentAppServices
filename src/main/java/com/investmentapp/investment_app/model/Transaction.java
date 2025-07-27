@@ -1,11 +1,14 @@
 package com.investmentapp.investment_app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.investmentapp.investment_app.enums.TransactionType;
 import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,7 +18,9 @@ import lombok.*;
 @Table(name = "transaction")
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"portfolio", "investment"})
-public class Transaction {
+public class Transaction implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +28,12 @@ public class Transaction {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "portfolio_id", nullable = false)
+  @JsonIgnore
   private Portfolio portfolio;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "investment_id", nullable = false)
+  @JsonIgnore
   private Investment investment;
 
   private String stockSymbol;

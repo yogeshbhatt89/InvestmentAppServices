@@ -142,7 +142,24 @@
 
 	</dependencies>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spotbugs</id>
+			<name>SpotBugs</name>
+			<url>https://spotbugs.github.io/m2</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>com.github.spotbugs</groupId>
+					<artifactId>spotbugs-maven-plugin</artifactId>
+					<version>4.7.3.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<!-- Compiler plugin for Lombok annotations to work properly -->
 			<plugin>
@@ -187,18 +204,6 @@
 				</configuration>
 			</plugin>
 
-			<!-- SpotBugs Plugin -->
-			<plugin>
-				<groupId>com.github.spotbugs</groupId>
-				<artifactId>spotbugs-maven-plugin</artifactId>
-				<version>4.7.3.0</version>
-				<configuration>
-					<failOnError>true</failOnError>
-					<effort>Max</effort>
-					<threshold>Low</threshold>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
@@ -223,6 +228,25 @@
 			</plugin>
 
 
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.7.3.1</version>
+				<configuration>
+					<excludeFilterFile>${project.basedir}/src/main/resources/spotbugs-exclude.xml</excludeFilterFile>
+					<failOnError>true</failOnError>
+					<effort>Max</effort>
+					<failOnViolation>true</failOnViolation>
+					<threshold>High</threshold>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

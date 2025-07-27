@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.investmentapp.investment_app.enums.Role;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,12 +13,21 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Entity
 @Table(name = "app_user")
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class User implements UserDetails {
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -48,12 +53,15 @@ public class User implements UserDetails {
   @Column(name = "birthday", columnDefinition = "DATE")
   private LocalDate birthday;
 
+  // Using wrapper classes to handle the transient nature of these fields
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "country_id")
+  @Transient
   private Country country;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "language_id")
+  @Transient
   private Language language;
 
   @Column(name = "is_active")
@@ -80,6 +88,10 @@ public class User implements UserDetails {
   @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
   @Enumerated(EnumType.STRING)
   private Set<Role> roles = new HashSet<>();
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonIgnore
+  private List<Portfolio> portfolios = new ArrayList<>();
 
   @PrePersist
   protected void onCreate() {
@@ -112,6 +124,10 @@ public class User implements UserDetails {
   @Override
   public String getPassword() {
     return passwordHash;
+  }
+
+  public Set<Role> getRoles() {
+    return roles != null ? new HashSet<>(roles) : new HashSet<>();
   }
 
   @Override

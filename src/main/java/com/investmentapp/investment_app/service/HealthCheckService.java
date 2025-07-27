@@ -12,8 +12,13 @@ public class HealthCheckService {
 
   private final RestTemplate restTemplate;
 
-  public HealthCheckService(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
+  public HealthCheckService() {
+    this.restTemplate = new RestTemplate();
+  }
+  
+  // Package-private constructor for testing
+  HealthCheckService(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate != null ? new RestTemplate(restTemplate.getRequestFactory()) : new RestTemplate();
   }
 
   @Scheduled(fixedRate = 600000) // 10 minutes in milliseconds

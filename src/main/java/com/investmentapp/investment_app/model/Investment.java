@@ -27,6 +27,19 @@ public class Investment {
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
 
+  // Copy constructor
+  public Investment(Investment other) {
+    if (other != null) {
+      this.id = other.id;
+      this.name = other.name;
+      this.symbol = other.symbol;
+      this.type = other.type;
+      this.description = other.description;
+      this.price = other.price != null ? new BigDecimal(other.price.toString()) : null;
+      this.createdAt = other.createdAt != null ? LocalDateTime.from(other.createdAt) : null;
+    }
+  }
+
   @PrePersist
   protected void onCreate() {
     this.createdAt = LocalDateTime.now();
