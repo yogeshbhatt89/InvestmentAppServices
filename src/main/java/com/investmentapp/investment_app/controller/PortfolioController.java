@@ -7,6 +7,9 @@ import com.investmentapp.investment_app.repository.HoldingRepository;
 import com.investmentapp.investment_app.service.PortfolioService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,10 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/portfolios")
@@ -43,14 +42,16 @@ public class PortfolioController {
   // 1️⃣ Create a portfolio
   @PostMapping
   public ResponseEntity<PortfolioRequest> createPortfolio(
-          @RequestBody PortfolioRequest portfolioRequest, @AuthenticationPrincipal User user) {
-    PortfolioRequest createdPortfolio = portfolioService.createPortfolio(portfolioRequest, user.getEmail());
+      @RequestBody PortfolioRequest portfolioRequest, @AuthenticationPrincipal User user) {
+    PortfolioRequest createdPortfolio =
+        portfolioService.createPortfolio(portfolioRequest, user.getEmail());
     return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
   }
 
   // 2️⃣ Get all portfolios for the logged-in user
   @GetMapping
-  public ResponseEntity<List<PortfolioRequest>> getUserPortfolios(@AuthenticationPrincipal User user) {
+  public ResponseEntity<List<PortfolioRequest>> getUserPortfolios(
+      @AuthenticationPrincipal User user) {
     List<PortfolioRequest> portfolios = portfolioService.getUserPortfolios(user.getEmail());
     return ResponseEntity.ok(portfolios);
   }

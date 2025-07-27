@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.investmentapp.investment_app.enums.TransactionType;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter

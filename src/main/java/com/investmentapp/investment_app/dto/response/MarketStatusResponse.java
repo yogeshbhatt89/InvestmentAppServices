@@ -16,9 +16,7 @@ public class MarketStatusResponse {
   private long t;
   private String errorMessage;
 
-  /**
-   * Construct a DTO carrying only an error message.
-   */
+  /** Construct a DTO carrying only an error message. */
   public MarketStatusResponse(String errorMessage) {
     this.errorMessage = errorMessage;
   }

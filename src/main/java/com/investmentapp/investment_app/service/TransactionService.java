@@ -40,7 +40,8 @@ public class TransactionService {
   }
 
   @Transactional
-  public TransactionRequest executeTransaction(TransactionRequest dto, @AuthenticationPrincipal User user) {
+  public TransactionRequest executeTransaction(
+      TransactionRequest dto, @AuthenticationPrincipal User user) {
     // Fetch the portfolio directly using the ID from the request
     Portfolio portfolio =
         portfolioRepository

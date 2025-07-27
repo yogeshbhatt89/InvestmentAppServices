@@ -10,13 +10,12 @@ import com.investmentapp.investment_app.security.JwtTokenUtil;
 import com.investmentapp.investment_app.service.AuthService;
 import com.investmentapp.investment_app.service.UserService;
 import jakarta.validation.Valid;
+import java.util.Map;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -29,27 +28,21 @@ public class AuthController {
   @Autowired private UserService userService;
 
   @PostMapping("/register")
-  public ResponseEntity<?> register(
-          @Valid @RequestBody RegisterRequest req) {
+  public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
 
     try {
       User created = userService.registerUser(req);
 
       UserResponse resp = UserResponse.fromEntity(created);
 
-      return ResponseEntity
-              .status(HttpStatus.CREATED)
-              .body(resp);
+      return ResponseEntity.status(HttpStatus.CREATED).body(resp);
 
     } catch (EmailAlreadyExistsException | UsernameAlreadyExistsException ex) {
       // 409 Conflict when email or username is already taken
-      return ResponseEntity
-              .status(HttpStatus.CONFLICT)
-              .body(Map.of(
-                      "error", "USER_EXISTS",
-                      "message", ex.getMessage()
-              ));
-    }}
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+          .body(Map.of("error", "USER_EXISTS", "message", ex.getMessage()));
+    }
+  }
 
   // Login user and return JWT tokens
   @PostMapping("/login")

@@ -12,14 +12,13 @@ import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.CountryRepository;
 import com.investmentapp.investment_app.repository.LanguageRepository;
 import com.investmentapp.investment_app.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
@@ -50,21 +49,22 @@ public class UserService {
     // 3. Country & Language lookups
     if (req.getCountryId() != null) {
       Country country =
-              countryRepo.findById(req.getCountryId())
-                      .orElseThrow(() -> new UserNotFoundException("Country not found"));
+          countryRepo
+              .findById(req.getCountryId())
+              .orElseThrow(() -> new UserNotFoundException("Country not found"));
       user.setCountry(country);
     }
     if (req.getLanguageId() != null) {
       Language language =
-              languageRepo.findById(req.getLanguageId())
-                      .orElseThrow(() -> new UserNotFoundException("Language not found"));
+          languageRepo
+              .findById(req.getLanguageId())
+              .orElseThrow(() -> new UserNotFoundException("Language not found"));
       user.setLanguage(language);
     }
 
     // 4. Roles (map Strings → Enum)
-    Set<Role> roles = Optional.ofNullable(req.getRoles())
-            .filter(rs -> !rs.isEmpty())
-            .orElse(Set.of(Role.USER));
+    Set<Role> roles =
+        Optional.ofNullable(req.getRoles()).filter(rs -> !rs.isEmpty()).orElse(Set.of(Role.USER));
 
     user.setRoles(roles);
 

@@ -3,12 +3,11 @@ package com.investmentapp.investment_app.controller;
 import com.investmentapp.investment_app.dto.request.TransactionRequest;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.service.TransactionService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -22,7 +21,7 @@ public class TransactionController {
 
   @PostMapping
   public ResponseEntity<TransactionRequest> createTransaction(
-          @RequestBody TransactionRequest transactionRequest, @AuthenticationPrincipal User user) {
+      @RequestBody TransactionRequest transactionRequest, @AuthenticationPrincipal User user) {
     try {
       TransactionRequest result = transactionService.executeTransaction(transactionRequest, user);
       return new ResponseEntity<>(result, HttpStatus.CREATED);

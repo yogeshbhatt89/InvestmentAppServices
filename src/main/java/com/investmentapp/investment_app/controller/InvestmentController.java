@@ -2,6 +2,9 @@ package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.client.FinnhubClient;
 import com.investmentapp.investment_app.dto.response.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -10,10 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @RestController
 // @PreAuthorize("hasRole('ROLE_USER')")
@@ -88,17 +87,13 @@ public class InvestmentController {
     } catch (RuntimeException e) {
       logger.error("Error occurred: {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body(
-                      new SymbolLookupResponse(
-                              0,
-                              Collections.singletonList(
-                                      SymbolResponse.builder()
-                                              .description("Error occurred: " + e.getMessage())
-                                              .build()
-                              )
-                      )
-              );
-
+          .body(
+              new SymbolLookupResponse(
+                  0,
+                  Collections.singletonList(
+                      SymbolResponse.builder()
+                          .description("Error occurred: " + e.getMessage())
+                          .build())));
     }
   }
 

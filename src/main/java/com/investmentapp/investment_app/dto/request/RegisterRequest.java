@@ -3,11 +3,10 @@ package com.investmentapp.investment_app.dto.request;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.investmentapp.investment_app.enums.Role;
 import jakarta.validation.constraints.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDate;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -41,8 +40,6 @@ public class RegisterRequest {
 
   private Long languageId;
 
-  /**
-   * Optional: if empty or null, UserService will default to Role.USER
-   */
+  /** Optional: if empty or null, UserService will default to Role.USER */
   private Set<Role> roles;
 }

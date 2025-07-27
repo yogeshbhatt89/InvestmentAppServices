@@ -1,10 +1,9 @@
 package com.investmentapp.investment_app.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Getter
 @Setter

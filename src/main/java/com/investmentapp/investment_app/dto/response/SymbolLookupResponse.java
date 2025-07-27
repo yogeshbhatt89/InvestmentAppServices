@@ -1,13 +1,11 @@
 package com.investmentapp.investment_app.dto.response;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Setter
 @Getter
-
 public class SymbolLookupResponse {
   private int count;
   private List<SymbolResponse> result;
@@ -20,5 +18,4 @@ public class SymbolLookupResponse {
     this.count = count;
     this.result = result;
   }
-
 }

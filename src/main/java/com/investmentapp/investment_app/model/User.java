@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.investmentapp.investment_app.enums.Role;
 import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,11 +16,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "app_user")
@@ -99,17 +98,15 @@ public class User implements UserDetails {
   }
 
   public List<String> getRolesAsString() {
-    return roles.stream()
-            .map(Enum::name)
-            .collect(Collectors.toList());
+    return roles.stream().map(Enum::name).collect(Collectors.toList());
   }
 
   // --- UserDetails implementation ---
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return roles.stream()
-            .map(r -> new SimpleGrantedAuthority(r.name()))
-            .collect(Collectors.toList());
+        .map(r -> new SimpleGrantedAuthority(r.name()))
+        .collect(Collectors.toList());
   }
 
   @Override
