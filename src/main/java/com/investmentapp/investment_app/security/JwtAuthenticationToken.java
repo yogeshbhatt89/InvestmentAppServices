@@ -1,15 +1,13 @@
 package com.investmentapp.investment_app.security;
 
 import com.investmentapp.investment_app.model.User;
+import java.io.Serial;
+import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.io.Serial;
-import java.util.Collection;
-
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
-  @Serial
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private final User user;
 

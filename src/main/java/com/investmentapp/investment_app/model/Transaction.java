@@ -9,6 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,8 +20,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 @ToString(exclude = {"portfolio", "investment"})
 public class Transaction implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 4L;
+  @Serial private static final long serialVersionUID = 4L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
