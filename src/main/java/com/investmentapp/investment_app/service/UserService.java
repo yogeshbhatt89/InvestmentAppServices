@@ -1,45 +1,74 @@
 package com.investmentapp.investment_app.service;
 
-import com.investmentapp.investment_app.DTO.UserDTO;
+import com.investmentapp.investment_app.dto.request.RegisterRequest;
+import com.investmentapp.investment_app.dto.request.UserRequest;
+import com.investmentapp.investment_app.enums.Role;
 import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
 import com.investmentapp.investment_app.exception.UserNotFoundException;
-import com.investmentapp.investment_app.model.Role;
+import com.investmentapp.investment_app.exception.UsernameAlreadyExistsException;
+import com.investmentapp.investment_app.model.Country;
+import com.investmentapp.investment_app.model.Language;
 import com.investmentapp.investment_app.model.User;
+import com.investmentapp.investment_app.repository.CountryRepository;
+import com.investmentapp.investment_app.repository.LanguageRepository;
 import com.investmentapp.investment_app.repository.UserRepository;
-import java.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
   @Autowired private UserRepository userRepository;
-
+  @Autowired private CountryRepository countryRepo;
+  @Autowired private LanguageRepository languageRepo;
   @Autowired private PasswordEncoder passwordEncoder;
 
-  public User registerUser(
-      String fullName, String email, String password, String username, Set<Role> roles) {
-    // Check if the email already exists
-    if (userRepository.findByEmail(email).isPresent()) {
-      throw new EmailAlreadyExistsException("Email already exists!");
+  public User registerUser(RegisterRequest req) {
+    // 1. Uniqueness checks
+    if (userRepository.findByEmail(req.getEmail()).isPresent()) {
+      throw new EmailAlreadyExistsException("Email already in use");
+    }
+    if (userRepository.findByUsername(req.getUsername()).isPresent()) {
+      throw new UsernameAlreadyExistsException("Username already in use");
     }
 
-    String passwordHash = passwordEncoder.encode(password);
-
+    // 2. Build entity
     User user = new User();
-    user.setFullName(fullName);
-    user.setEmail(email);
-    user.setPasswordHash(passwordHash);
-    user.setUsername(username);
-    user.setCreatedAt(LocalDateTime.now());
+    user.setFirstName(req.getFirstName());
+    user.setLastName(req.getLastName());
+    user.setEmail(req.getEmail());
+    user.setUsername(req.getUsername());
+    user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
+    user.setBirthday(req.getBirthday());
 
-    user.setRoles(roles == null || roles.isEmpty() ? Set.of(Role.USER) : roles);
+    // 3. Country & Language lookups
+    if (req.getCountryId() != null) {
+      Country country =
+              countryRepo.findById(req.getCountryId())
+                      .orElseThrow(() -> new UserNotFoundException("Country not found"));
+      user.setCountry(country);
+    }
+    if (req.getLanguageId() != null) {
+      Language language =
+              languageRepo.findById(req.getLanguageId())
+                      .orElseThrow(() -> new UserNotFoundException("Language not found"));
+      user.setLanguage(language);
+    }
 
+    // 4. Roles (map Strings → Enum)
+    Set<Role> roles = Optional.ofNullable(req.getRoles())
+            .filter(rs -> !rs.isEmpty())
+            .orElse(Set.of(Role.USER));
+
+    user.setRoles(roles);
+
+    // 5. Save (timestamps handled by @PrePersist)
     return userRepository.save(user);
   }
 
@@ -85,11 +114,11 @@ public class UserService {
    *
    * @return a list of User entities (you may want to map to DTOs)
    */
-  public List<UserDTO> getAllUsers() {
+  public List<UserRequest> getAllUsers() {
     return userRepository.findAll().stream()
         .map(
             u ->
-                new UserDTO(
+                new UserRequest(
                     u.getId(),
                     u.getUsername(),
                     u.getEmail(),

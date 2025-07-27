@@ -1,12 +1,12 @@
 package com.investmentapp.investment_app.mapper;
 
-import com.investmentapp.investment_app.DTO.PortfolioDTO;
+import com.investmentapp.investment_app.dto.request.PortfolioRequest;
 import com.investmentapp.investment_app.model.Portfolio;
 
 public class PortfolioMapper {
 
-  public static PortfolioDTO toDTO(Portfolio portfolio) {
-    return new PortfolioDTO(
+  public static PortfolioRequest toDTO(Portfolio portfolio) {
+    return new PortfolioRequest(
         portfolio.getId(),
         portfolio.getName(),
         portfolio.getInitialBalance(),
@@ -15,7 +15,7 @@ public class PortfolioMapper {
         portfolio.getCreatedAt());
   }
 
-  public static Portfolio toEntity(PortfolioDTO dto) {
+  public static Portfolio toEntity(PortfolioRequest dto) {
     Portfolio portfolio = new Portfolio();
     portfolio.setId(dto.getId());
     portfolio.setName(dto.getName());

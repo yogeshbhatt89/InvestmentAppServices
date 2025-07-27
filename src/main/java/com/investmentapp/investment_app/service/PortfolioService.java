@@ -1,6 +1,6 @@
 package com.investmentapp.investment_app.service;
 
-import com.investmentapp.investment_app.DTO.PortfolioDTO;
+import com.investmentapp.investment_app.dto.request.PortfolioRequest;
 import com.investmentapp.investment_app.mapper.PortfolioMapper;
 import com.investmentapp.investment_app.model.Portfolio;
 import com.investmentapp.investment_app.model.User;
@@ -29,7 +29,7 @@ public class PortfolioService {
   }
 
   // 1️⃣ Create Portfolio
-  public PortfolioDTO createPortfolio(@Valid PortfolioDTO dto, String email) {
+  public PortfolioRequest createPortfolio(@Valid PortfolioRequest dto, String email) {
     System.out.println(
         "PortfolioService: createPortfolio called for email: " + email); // Added logging
     User user =
@@ -51,7 +51,7 @@ public class PortfolioService {
   }
 
   // 2️⃣ Get User's Portfolios
-  public List<PortfolioDTO> getUserPortfolios(String email) {
+  public List<PortfolioRequest> getUserPortfolios(String email) {
     User user =
         userRepository
             .findByEmail(email) // Use User instead of AppUser
@@ -63,7 +63,7 @@ public class PortfolioService {
   }
 
   // 3️⃣ Get Portfolio by ID
-  public PortfolioDTO getPortfolio(Long id, String email) {
+  public PortfolioRequest getPortfolio(Long id, String email) {
     Portfolio portfolio =
         portfolioRepository
             .findById(id)
@@ -78,7 +78,7 @@ public class PortfolioService {
   }
 
   // 4️⃣ Update Portfolio
-  public PortfolioDTO updatePortfolio(Long id, @Valid PortfolioDTO dto, String email) {
+  public PortfolioRequest updatePortfolio(Long id, @Valid PortfolioRequest dto, String email) {
     System.out.println(
         "PortfolioService: updatePortfolio called for id: " + id + ", email: " + email);
     Portfolio portfolio =

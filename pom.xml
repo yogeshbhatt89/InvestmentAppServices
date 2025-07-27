@@ -33,6 +33,11 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
+		</dependency>
 		<!-- Spring Boot Web (for creating REST API) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -51,8 +56,10 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.28</version>
+			<scope>annotationProcessor</scope>
 		</dependency>
+
 
 		<!-- Spring Boot Starter Test (for unit testing) -->
 		<dependency>
@@ -141,15 +148,20 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version> <!-- Optional: ensures compatibility with Java 17 -->
 				<configuration>
+					<source>17</source>
+					<target>17</target>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>1.18.28</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+
 
 			<!-- Spring Boot Maven plugin for running the application -->
 			<plugin>

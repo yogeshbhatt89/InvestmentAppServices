@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.service;
 
-import com.investmentapp.investment_app.DTO.TransactionDTO;
+import com.investmentapp.investment_app.dto.request.TransactionRequest;
+import com.investmentapp.investment_app.enums.TransactionType;
 import com.investmentapp.investment_app.exception.AccessDeniedException;
 import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
@@ -39,7 +40,7 @@ public class TransactionService {
   }
 
   @Transactional
-  public TransactionDTO executeTransaction(TransactionDTO dto, @AuthenticationPrincipal User user) {
+  public TransactionRequest executeTransaction(TransactionRequest dto, @AuthenticationPrincipal User user) {
     // Fetch the portfolio directly using the ID from the request
     Portfolio portfolio =
         portfolioRepository
@@ -137,7 +138,7 @@ public class TransactionService {
     holdingRepository.save(holding);
   }
 
-  public List<TransactionDTO> getTransactionHistory(User user) {
+  public List<TransactionRequest> getTransactionHistory(User user) {
     List<Portfolio> portfolios = portfolioRepository.findByUser(user);
 
     if (portfolios.isEmpty()) {
@@ -152,7 +153,7 @@ public class TransactionService {
     return transactions.stream()
         .map(
             transaction ->
-                new TransactionDTO(
+                new TransactionRequest(
                     transaction.getPortfolio().getId(),
                     transaction.getStockSymbol(),
                     transaction.getType(),
@@ -162,7 +163,7 @@ public class TransactionService {
         .collect(Collectors.toList());
   }
 
-  public List<TransactionDTO> getTransactionHistoryByPortfolioId(Long portfolioId) {
+  public List<TransactionRequest> getTransactionHistoryByPortfolioId(Long portfolioId) {
     List<Transaction> transactions =
         transactionRepository.findByPortfolioIdIn(List.of(portfolioId));
 
@@ -174,7 +175,7 @@ public class TransactionService {
     return transactions.stream()
         .map(
             transaction ->
-                new TransactionDTO(
+                new TransactionRequest(
                     transaction.getPortfolio().getId(),
                     transaction.getStockSymbol(),
                     transaction.getType(),
