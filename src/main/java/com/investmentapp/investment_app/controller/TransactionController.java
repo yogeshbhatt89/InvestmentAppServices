@@ -1,6 +1,6 @@
 package com.investmentapp.investment_app.controller;
 
-import com.investmentapp.investment_app.DTO.TransactionDTO;
+import com.investmentapp.investment_app.dto.request.TransactionRequest;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.service.TransactionService;
 import java.util.List;
@@ -20,10 +20,10 @@ public class TransactionController {
   }
 
   @PostMapping
-  public ResponseEntity<TransactionDTO> createTransaction(
-      @RequestBody TransactionDTO transactionDTO, @AuthenticationPrincipal User user) {
+  public ResponseEntity<TransactionRequest> createTransaction(
+      @RequestBody TransactionRequest transactionRequest, @AuthenticationPrincipal User user) {
     try {
-      TransactionDTO result = transactionService.executeTransaction(transactionDTO, user);
+      TransactionRequest result = transactionService.executeTransaction(transactionRequest, user);
       return new ResponseEntity<>(result, HttpStatus.CREATED);
     } catch (Exception e) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -31,13 +31,13 @@ public class TransactionController {
   }
 
   @GetMapping("/history")
-  public ResponseEntity<List<TransactionDTO>> getTransactionHistory(
+  public ResponseEntity<List<TransactionRequest>> getTransactionHistory(
       @AuthenticationPrincipal User user) {
     return ResponseEntity.ok(transactionService.getTransactionHistory(user));
   }
 
   @GetMapping("/history/{portfolioId}")
-  public List<TransactionDTO> getTransactionHistoryByPortfolioId(
+  public List<TransactionRequest> getTransactionHistoryByPortfolioId(
       @PathVariable Long portfolioId, @AuthenticationPrincipal User user) {
     return transactionService.getTransactionHistoryByPortfolioId(portfolioId);
   }

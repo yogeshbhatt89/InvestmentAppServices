@@ -1,10 +1,15 @@
 package com.investmentapp.investment_app.controller;
 
+import com.investmentapp.investment_app.dto.request.LoginRequest;
+import com.investmentapp.investment_app.dto.request.RegisterRequest;
+import com.investmentapp.investment_app.dto.response.UserResponse;
 import com.investmentapp.investment_app.exception.EmailAlreadyExistsException;
+import com.investmentapp.investment_app.exception.UsernameAlreadyExistsException;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
 import com.investmentapp.investment_app.service.AuthService;
 import com.investmentapp.investment_app.service.UserService;
+import jakarta.validation.Valid;
 import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,23 +27,20 @@ public class AuthController {
 
   @Autowired private UserService userService;
 
-  // Register user
   @PostMapping("/register")
-  public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+  public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest req) {
+
     try {
-      User user =
-          userService.registerUser(
-              registerRequest.getFullName(),
-              registerRequest.getEmail(),
-              registerRequest.getPassword(),
-              registerRequest.getUsername(),
-              registerRequest.getRoles());
-      return ResponseEntity.status(HttpStatus.CREATED).body(user);
-    } catch (EmailAlreadyExistsException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists");
-    } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An error occurred: " + e.getMessage());
+      User created = userService.registerUser(req);
+
+      UserResponse resp = UserResponse.fromEntity(created);
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+
+    } catch (EmailAlreadyExistsException | UsernameAlreadyExistsException ex) {
+      // 409 Conflict when email or username is already taken
+      return ResponseEntity.status(HttpStatus.CONFLICT)
+          .body(Map.of("error", "USER_EXISTS", "message", ex.getMessage()));
     }
   }
 

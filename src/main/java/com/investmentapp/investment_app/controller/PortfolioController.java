@@ -1,6 +1,6 @@
 package com.investmentapp.investment_app.controller;
 
-import com.investmentapp.investment_app.DTO.PortfolioDTO;
+import com.investmentapp.investment_app.dto.request.PortfolioRequest;
 import com.investmentapp.investment_app.model.Holding;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.HoldingRepository;
@@ -41,35 +41,37 @@ public class PortfolioController {
 
   // 1️⃣ Create a portfolio
   @PostMapping
-  public ResponseEntity<PortfolioDTO> createPortfolio(
-      @RequestBody PortfolioDTO portfolioDTO, @AuthenticationPrincipal User user) {
-    PortfolioDTO createdPortfolio = portfolioService.createPortfolio(portfolioDTO, user.getEmail());
+  public ResponseEntity<PortfolioRequest> createPortfolio(
+      @RequestBody PortfolioRequest portfolioRequest, @AuthenticationPrincipal User user) {
+    PortfolioRequest createdPortfolio =
+        portfolioService.createPortfolio(portfolioRequest, user.getEmail());
     return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
   }
 
   // 2️⃣ Get all portfolios for the logged-in user
   @GetMapping
-  public ResponseEntity<List<PortfolioDTO>> getUserPortfolios(@AuthenticationPrincipal User user) {
-    List<PortfolioDTO> portfolios = portfolioService.getUserPortfolios(user.getEmail());
+  public ResponseEntity<List<PortfolioRequest>> getUserPortfolios(
+      @AuthenticationPrincipal User user) {
+    List<PortfolioRequest> portfolios = portfolioService.getUserPortfolios(user.getEmail());
     return ResponseEntity.ok(portfolios);
   }
 
   // 3️⃣ Get a specific portfolio
   @GetMapping("/{id}")
-  public ResponseEntity<PortfolioDTO> getPortfolio(
+  public ResponseEntity<PortfolioRequest> getPortfolio(
       @PathVariable Long id, @AuthenticationPrincipal User user) {
-    PortfolioDTO portfolio = portfolioService.getPortfolio(id, user.getEmail());
+    PortfolioRequest portfolio = portfolioService.getPortfolio(id, user.getEmail());
     return ResponseEntity.ok(portfolio);
   }
 
   // 4️⃣ Update portfolio details
   @PutMapping("/{id}")
-  public ResponseEntity<PortfolioDTO> updatePortfolio(
+  public ResponseEntity<PortfolioRequest> updatePortfolio(
       @PathVariable Long id,
-      @Valid @RequestBody PortfolioDTO portfolioDTO,
+      @Valid @RequestBody PortfolioRequest portfolioRequest,
       @AuthenticationPrincipal User user) {
-    PortfolioDTO updatedPortfolio =
-        portfolioService.updatePortfolio(id, portfolioDTO, user.getEmail());
+    PortfolioRequest updatedPortfolio =
+        portfolioService.updatePortfolio(id, portfolioRequest, user.getEmail());
     return ResponseEntity.ok(updatedPortfolio);
   }
 

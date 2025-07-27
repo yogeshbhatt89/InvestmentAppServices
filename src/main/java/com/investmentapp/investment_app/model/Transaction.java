@@ -1,103 +1,53 @@
 package com.investmentapp.investment_app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.investmentapp.investment_app.enums.TransactionType;
 import jakarta.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
-public class Transaction {
+@Table(name = "transaction")
+@EqualsAndHashCode(of = "id")
+@ToString(exclude = {"portfolio", "investment"})
+public class Transaction implements Serializable {
+  @Serial private static final long serialVersionUID = 4L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "portfolio_id", nullable = false)
+  @JsonIgnore
   private Portfolio portfolio;
 
-  @ManyToOne
-  @JoinColumn(name = "investment_id", nullable = false) // Add this reference to Investment
-  private Investment investment;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "investment_id", nullable = false)
+  @JsonIgnore
+  private transient Investment investment;
 
-  private String stockSymbol; // e.g., "AAPL"
-  private int quantity; // Number of shares bought/sold
-  private BigDecimal price; // Price per share
-  private BigDecimal totalCost; // quantity * price
+  private String stockSymbol;
+  private int quantity;
+  private BigDecimal price;
+  private BigDecimal totalCost;
 
+  @Enumerated(EnumType.STRING)
   private TransactionType type;
 
   @Column(name = "transaction_date", nullable = false, updatable = false)
-  private LocalDateTime transactionDate = LocalDateTime.now(); // Auto-set when created
+  private LocalDateTime transactionDate;
 
-  public Investment getInvestment() {
-    return investment;
-  }
-
-  public void setInvestment(Investment investment) {
-    this.investment = investment;
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public Portfolio getPortfolio() {
-    return portfolio;
-  }
-
-  public void setPortfolio(Portfolio portfolio) {
-    this.portfolio = portfolio;
-  }
-
-  public String getStockSymbol() {
-    return stockSymbol;
-  }
-
-  public void setStockSymbol(String stockSymbol) {
-    this.stockSymbol = stockSymbol;
-  }
-
-  public int getQuantity() {
-    return quantity;
-  }
-
-  public void setQuantity(int quantity) {
-    this.quantity = quantity;
-  }
-
-  public BigDecimal getPrice() {
-    return price;
-  }
-
-  public void setPrice(BigDecimal price) {
-    this.price = price;
-  }
-
-  public BigDecimal getTotalCost() {
-    return totalCost;
-  }
-
-  public void setTotalCost(BigDecimal totalCost) {
-    this.totalCost = totalCost;
-  }
-
-  public TransactionType getType() {
-    return type;
-  }
-
-  public void setType(TransactionType type) {
-    this.type = type;
-  }
-
-  public LocalDateTime getTransactionDate() {
-    return transactionDate;
-  }
-
-  public void setTransactionDate(LocalDateTime transactionDate) {
-    this.transactionDate = transactionDate;
+  @PrePersist
+  protected void onCreate() {
+    this.transactionDate = LocalDateTime.now();
   }
 }

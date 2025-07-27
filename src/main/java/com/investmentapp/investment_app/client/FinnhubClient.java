@@ -2,8 +2,7 @@ package com.investmentapp.investment_app.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.investmentapp.investment_app.DTO.*;
-import com.investmentapp.investment_app.controller.SymbolLookupResponse;
+import com.investmentapp.investment_app.dto.response.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -32,7 +31,7 @@ public class FinnhubClient {
     this.objectMapper = new ObjectMapper();
   }
 
-  public StockQuoteResponseDTO getQuote(String symbol) {
+  public StockQuoteResponse getQuote(String symbol) {
     String url =
         String.format("https://finnhub.io/api/v1/quote?symbol=%s&token=%s", symbol, apiKey);
     Map<String, Object> jsonResponse = sendRequest(url);
@@ -43,13 +42,13 @@ public class FinnhubClient {
     return null;
   }
 
-  public List<StockSymbolDTO> getStockSymbols(
+  public List<StockSymbolResponse> getStockSymbols(
       String exchange, String mic, String securityType, String currency, int limit, int offset) {
     String url =
         String.format(
             "https://finnhub.io/api/v1/stock/symbol?exchange=%s&mic=%s&securityType=%s&currency=%s&limit=%d&offset=%d&token=%s",
             exchange, mic, securityType, currency, limit, offset, apiKey);
-    return sendRequest(url, new TypeReference<List<StockSymbolDTO>>() {});
+    return sendRequest(url, new TypeReference<List<StockSymbolResponse>>() {});
   }
 
   public SymbolLookupResponse symbolLookup(String query, String exchange) {
@@ -62,31 +61,31 @@ public class FinnhubClient {
     return sendRequest(url, SymbolLookupResponse.class);
   }
 
-  public List<RecommendationTrendDTO> getRecommendationTrends(String symbol) {
+  public List<RecommendationTrendResponse> getRecommendationTrends(String symbol) {
     String url =
         String.format(
             "https://finnhub.io/api/v1/stock/recommendation?symbol=%s&token=%s", symbol, apiKey);
-    return sendRequest(url, new TypeReference<List<RecommendationTrendDTO>>() {});
+    return sendRequest(url, new TypeReference<List<RecommendationTrendResponse>>() {});
   }
 
-  public MarketStatusDTO getMarketStatus(String exchange) {
+  public MarketStatusResponse getMarketStatus(String exchange) {
     String url =
         String.format(
             "https://finnhub.io/api/v1/stock/market-status?exchange=%s&token=%s", exchange, apiKey);
-    return sendRequest(url, MarketStatusDTO.class);
+    return sendRequest(url, MarketStatusResponse.class);
   }
 
-  public CompanyProfileDTO getCompanyProfile(String symbol, String isin, String cusip) {
+  public CompanyProfileResponse getCompanyProfile(String symbol, String isin, String cusip) {
     String url = buildCompanyProfileUrl(symbol, isin, cusip);
-    return sendRequest(url, CompanyProfileDTO.class);
+    return sendRequest(url, CompanyProfileResponse.class);
   }
 
-  public List<CompanyNewsDTO> getCompanyNews(String symbol, String from, String to) {
+  public List<CompanyNewsResponse> getCompanyNews(String symbol, String from, String to) {
     String url =
         String.format(
             "https://finnhub.io/api/v1/company-news?symbol=%s&from=%s&to=%s&token=%s",
             symbol, from, to, apiKey);
-    return sendRequest(url, new TypeReference<List<CompanyNewsDTO>>() {});
+    return sendRequest(url, new TypeReference<List<CompanyNewsResponse>>() {});
   }
 
   private String buildCompanyProfileUrl(String symbol, String isin, String cusip) {
@@ -167,8 +166,8 @@ public class FinnhubClient {
   }
 
   // General method for mapping response to DTO
-  private StockQuoteResponseDTO mapToDTO(Map<String, Object> jsonResponse) {
-    StockQuoteResponseDTO dto = new StockQuoteResponseDTO();
+  private StockQuoteResponse mapToDTO(Map<String, Object> jsonResponse) {
+    StockQuoteResponse dto = new StockQuoteResponse();
 
     // Handling the fields that can be Double
     dto.setCurrentPrice(getDouble(jsonResponse.get("c")));
