@@ -27,78 +27,78 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final JwtTokenUtil jwtTokenUtil;
-  private final UserRepository userRepository;
-  private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final UserRepository userRepository;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
-  @Value("${app.cors.allowed-origins}")
-  private String[] allowedOrigins;
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
-  @Value("${app.cors.allowed-methods}")
-  private String[] allowedMethods;
+    @Value("${app.cors.allowed-methods}")
+    private String[] allowedMethods;
 
-  @Value("${app.cors.allowed-headers}")
-  private String[] allowedHeaders;
+    @Value("${app.cors.allowed-headers}")
+    private String[] allowedHeaders;
 
-  @Value("${app.cors.allow-credentials}")
-  private boolean allowCredentials;
+    @Value("${app.cors.allow-credentials}")
+    private boolean allowCredentials;
 
-  @Value("${app.cors.max-age}")
-  private long maxAge;
+    @Value("${app.cors.max-age}")
+    private long maxAge;
 
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .formLogin(AbstractHttpConfigurer::disable)
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                    // Public endpoints
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/health", "/api/investments/public/**").permitAll()
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/health", "/api/investments/public/**").permitAll()
 
-                    // User-only endpoints
-                    .requestMatchers("/me", "/api/investments/**")
-                    .hasRole("USER")
+                        // User-only endpoints
+                        .requestMatchers("/me", "/api/investments/**")
+                        .hasRole("USER")
 
-                    // Admin-only endpoints
-                    .requestMatchers("/api/users/**")
-                    .hasRole("ADMIN")
+                        // Admin-only endpoints
+                        .requestMatchers("/api/users/**")
+                        .hasRole("ADMIN")
 
-                    // Fallback: require authentication
-                    .anyRequest().authenticated()
-            )
-            .exceptionHandling(ex -> ex
-                    .accessDeniedHandler(accessDeniedHandler))
-            .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+                        // Fallback: require authentication
+                        .anyRequest().authenticated()
+                )
+                .exceptionHandling(ex -> ex
+                        .accessDeniedHandler(accessDeniedHandler))
+                .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
-    return http.build();
-  }
+        return http.build();
+    }
 
-  @Bean
-  public JwtAuthorizationFilter jwtAuthorizationFilter() {
-    return new JwtAuthorizationFilter(jwtTokenUtil, userRepository);
-  }
+    @Bean
+    public JwtAuthorizationFilter jwtAuthorizationFilter() {
+        return new JwtAuthorizationFilter(jwtTokenUtil, userRepository);
+    }
 
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of(allowedOrigins));
-    config.setAllowedMethods(List.of(allowedMethods));
-    config.setAllowedHeaders(List.of(allowedHeaders));
-    config.setAllowCredentials(allowCredentials);
-    config.setMaxAge(maxAge);
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(allowedOrigins));
+        config.setAllowedMethods(List.of(allowedMethods));
+        config.setAllowedHeaders(List.of(allowedHeaders));
+        config.setAllowCredentials(allowCredentials);
+        config.setMaxAge(maxAge);
 
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-  }
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }
