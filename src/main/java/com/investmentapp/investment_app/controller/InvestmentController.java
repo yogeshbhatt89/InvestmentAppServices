@@ -1,7 +1,7 @@
 package com.investmentapp.investment_app.controller;
 
-import com.investmentapp.investment_app.DTO.*;
 import com.investmentapp.investment_app.client.FinnhubClient;
+import com.investmentapp.investment_app.dto.response.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,28 +27,28 @@ public class InvestmentController {
   }
 
   @GetMapping("/quote")
-  public ResponseEntity<StockQuoteResponseDTO> searchInvestment(@RequestParam String ticker) {
+  public ResponseEntity<StockQuoteResponse> searchInvestment(@RequestParam String ticker) {
     logger.info("Received request for /api/investments/search with ticker: {}", ticker);
 
     try {
-      StockQuoteResponseDTO quote = finnhubClient.getQuote(ticker);
+      StockQuoteResponse quote = finnhubClient.getQuote(ticker);
 
       if (quote != null) {
         logger.info("Returning stock data for ticker: {}", ticker);
         return ResponseEntity.ok(quote);
       } else {
         logger.error("Failed to retrieve stock data for ticker: {}", ticker);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StockQuoteResponseDTO());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StockQuoteResponse());
       }
     } catch (RuntimeException e) {
       logger.error("Error occurred while fetching stock quote: {}", e.getMessage());
-      StockQuoteResponseDTO errorResponse = new StockQuoteResponseDTO();
+      StockQuoteResponse errorResponse = new StockQuoteResponse();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
   }
 
   @GetMapping("/searchSymbols")
-  public ResponseEntity<List<StockSymbolDTO>> searchSymbols(
+  public ResponseEntity<List<StockSymbolResponse>> searchSymbols(
       @RequestParam String exchange,
       @RequestParam(required = false) String mic,
       @RequestParam(required = false) String securityType,
@@ -58,13 +58,13 @@ public class InvestmentController {
     logger.info("Received request for /api/investments/searchSymbols with exchange: {}", exchange);
 
     try {
-      List<StockSymbolDTO> symbols =
+      List<StockSymbolResponse> symbols =
           finnhubClient.getStockSymbols(exchange, mic, securityType, currency, limit, offset);
       return ResponseEntity.ok(symbols);
     } catch (RuntimeException e) {
       logger.error("Error occurred: {}", e.getMessage());
-      List<StockSymbolDTO> errorResponse = new ArrayList<>();
-      StockSymbolDTO errorDTO = new StockSymbolDTO();
+      List<StockSymbolResponse> errorResponse = new ArrayList<>();
+      StockSymbolResponse errorDTO = new StockSymbolResponse();
       errorDTO.setDescription(e.getMessage());
       errorResponse.add(errorDTO);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
@@ -90,18 +90,21 @@ public class InvestmentController {
           .body(
               new SymbolLookupResponse(
                   0,
-                  Collections.singletonList(new SymbolDTO("Error occurred: " + e.getMessage()))));
+                  Collections.singletonList(
+                      SymbolResponse.builder()
+                          .description("Error occurred: " + e.getMessage())
+                          .build())));
     }
   }
 
   @GetMapping("/recommendationTrends")
-  public ResponseEntity<List<RecommendationTrendDTO>> getRecommendationTrends(
+  public ResponseEntity<List<RecommendationTrendResponse>> getRecommendationTrends(
       @RequestParam String ticker) {
     logger.info(
         "Received request for /api/investments/recommendationTrends with ticker: {}", ticker);
 
     try {
-      List<RecommendationTrendDTO> trends = finnhubClient.getRecommendationTrends(ticker);
+      List<RecommendationTrendResponse> trends = finnhubClient.getRecommendationTrends(ticker);
 
       if (trends != null && !trends.isEmpty()) {
         logger.info("Returning recommendation trends for ticker: {}", ticker);
@@ -117,11 +120,11 @@ public class InvestmentController {
   }
 
   @GetMapping("/marketStatus")
-  public ResponseEntity<MarketStatusDTO> getMarketStatus(@RequestParam String exchange) {
+  public ResponseEntity<MarketStatusResponse> getMarketStatus(@RequestParam String exchange) {
     logger.info("Received request for /api/investments/marketStatus with exchange: {}", exchange);
 
     try {
-      MarketStatusDTO marketStatus = finnhubClient.getMarketStatus(exchange);
+      MarketStatusResponse marketStatus = finnhubClient.getMarketStatus(exchange);
 
       if (marketStatus != null) {
         logger.info("Returning market status for exchange: {}", exchange);
@@ -132,20 +135,20 @@ public class InvestmentController {
       }
     } catch (RuntimeException e) {
       logger.error("Error occurred while fetching market status: {}", e.getMessage());
-      MarketStatusDTO errorResponse = new MarketStatusDTO("Error: " + e.getMessage());
+      MarketStatusResponse errorResponse = new MarketStatusResponse("Error: " + e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
   }
 
   @GetMapping("/companyProfile")
-  public ResponseEntity<CompanyProfileDTO> getCompanyProfile(
+  public ResponseEntity<CompanyProfileResponse> getCompanyProfile(
       @RequestParam(required = false) String symbol,
       @RequestParam(required = false) String isin,
       @RequestParam(required = false) String cusip) {
 
     try {
       // Call the FinnhubClient to get the company profile
-      CompanyProfileDTO companyProfile = finnhubClient.getCompanyProfile(symbol, isin, cusip);
+      CompanyProfileResponse companyProfile = finnhubClient.getCompanyProfile(symbol, isin, cusip);
 
       // Return the company profile wrapped in a ResponseEntity with HTTP status 200
       return ResponseEntity.ok(companyProfile);
@@ -157,7 +160,7 @@ public class InvestmentController {
   }
 
   @GetMapping("/companyNews")
-  public ResponseEntity<List<CompanyNewsDTO>> getCompanyNews(
+  public ResponseEntity<List<CompanyNewsResponse>> getCompanyNews(
       @RequestParam String symbol, // The company symbol (required)
       @RequestParam String from, // Start date in format YYYY-MM-DD (required)
       @RequestParam String to // End date in format YYYY-MM-DD (required)
@@ -165,7 +168,7 @@ public class InvestmentController {
 
     try {
       // Call the FinnhubClient to get the company news
-      List<CompanyNewsDTO> companyNews = finnhubClient.getCompanyNews(symbol, from, to);
+      List<CompanyNewsResponse> companyNews = finnhubClient.getCompanyNews(symbol, from, to);
 
       // Return the company news wrapped in a ResponseEntity with HTTP status 200
       return ResponseEntity.ok(companyNews);

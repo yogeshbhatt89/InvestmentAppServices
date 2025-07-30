@@ -1,85 +1,50 @@
 package com.investmentapp.investment_app.model;
 
 import jakarta.persistence.*;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
-public class Investment {
+@Table(name = "investment")
+public class Investment implements Serializable {
+  @Serial private static final long serialVersionUID = 3L;
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private String name; // Name of the investment (e.g., Apple, Bitcoin)
-  private String symbol; // Symbol for the investment (e.g., AAPL for Apple)
-  private String type; // Type of investment (e.g., stock, crypto)
-  private String description; // Description of the investment (optional)
-  private BigDecimal price; // Price of the investment
+  private String name; // e.g., Apple, Bitcoin
+  private String symbol; // e.g., AAPL
+  private String type; // e.g., stock, crypto
+  private String description; // optional description
+  private BigDecimal price; // current price
 
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
 
+  // Copy constructor
+  public Investment(Investment other) {
+    if (other != null) {
+      this.id = other.id;
+      this.name = other.name;
+      this.symbol = other.symbol;
+      this.type = other.type;
+      this.description = other.description;
+      this.price = other.price != null ? new BigDecimal(other.price.toString()) : null;
+      this.createdAt = other.createdAt != null ? LocalDateTime.from(other.createdAt) : null;
+    }
+  }
+
   @PrePersist
   protected void onCreate() {
     this.createdAt = LocalDateTime.now();
-  }
-
-  // Getters and Setters
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public String getSymbol() {
-    return symbol;
-  }
-
-  public void setSymbol(String symbol) {
-    this.symbol = symbol;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public BigDecimal getPrice() {
-    return price;
-  }
-
-  public void setPrice(BigDecimal price) {
-    this.price = price;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public void setCreatedAt(LocalDateTime createdAt) {
-    this.createdAt = createdAt;
   }
 }

@@ -1,0 +1,4 @@
+#!/bin/sh
+mvn spotless:check || exit 1
+mvn spotbugs:check || exit 1
+mvn clean install || exit 1
