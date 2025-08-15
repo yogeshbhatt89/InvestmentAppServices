@@ -27,8 +27,7 @@ public class TransactionController {
       TransactionRequest result = transactionService.executeTransaction(transactionRequest, user);
       return ResponseEntity.status(HttpStatus.CREATED)
           .body(
-              ApiResponse.success(
-                  result, HttpStatus.CREATED.value(), "Transaction created", null));
+              ApiResponse.success(result, HttpStatus.CREATED.value(), "Transaction created", null));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
@@ -38,12 +37,10 @@ public class TransactionController {
   }
 
   @GetMapping("/history")
-  public ResponseEntity<?> getTransactionHistory(
-      @AuthenticationPrincipal User user) {
+  public ResponseEntity<?> getTransactionHistory(@AuthenticationPrincipal User user) {
     List<TransactionRequest> history = transactionService.getTransactionHistory(user);
     return ResponseEntity.ok(
-        ApiResponse.success(
-            history, HttpStatus.OK.value(), "Transaction history fetched", null));
+        ApiResponse.success(history, HttpStatus.OK.value(), "Transaction history fetched", null));
   }
 
   @GetMapping("/history/{portfolioId}")

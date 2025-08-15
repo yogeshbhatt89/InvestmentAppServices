@@ -3,6 +3,10 @@ package com.investmentapp.investment_app.controller;
 import com.investmentapp.investment_app.client.FinnhubClient;
 import com.investmentapp.investment_app.dto.response.*;
 import com.investmentapp.investment_app.model.ApiResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -11,11 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 // @PreAuthorize("hasRole('ROLE_USER')")
@@ -39,7 +38,8 @@ public class InvestmentController {
       if (quote != null) {
         logger.info("Returning stock data for ticker: {}", ticker);
         return ResponseEntity.ok(
-            ApiResponse.success(quote, HttpStatus.OK.value(), "Quote fetched", "ticker: " + ticker));
+            ApiResponse.success(
+                quote, HttpStatus.OK.value(), "Quote fetched", "ticker: " + ticker));
       } else {
         logger.error("Failed to retrieve stock data for ticker: {}", ticker);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -63,7 +63,7 @@ public class InvestmentController {
   @GetMapping("/batchQuotes")
   public ResponseEntity<?> batchQuotes(@RequestParam String symbols) {
     logger.info("Received batch quote request for symbols: {}", symbols);
-    
+
     if (symbols == null || symbols.trim().isEmpty()) {
       return ResponseEntity.badRequest()
           .body(
@@ -99,11 +99,11 @@ public class InvestmentController {
     }
 
     result.put("quotes", successfulQuotes);
-    
+
     if (!failedSymbols.isEmpty()) {
       result.put("failedSymbols", failedSymbols);
       result.put("message", "Some quotes could not be fetched");
-      
+
       if (successfulQuotes.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(
@@ -112,14 +112,18 @@ public class InvestmentController {
                     "NO_QUOTES_FOUND",
                     "No quotes could be found for the provided symbols"));
       }
-      
+
       return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
           .body(
               ApiResponse.success(
                   result,
                   HttpStatus.PARTIAL_CONTENT.value(),
                   "Partial content: Some quotes could not be fetched",
-                  "Processed " + successfulQuotes.size() + " out of " + symbolArray.length + " symbols"));
+                  "Processed "
+                      + successfulQuotes.size()
+                      + " out of "
+                      + symbolArray.length
+                      + " symbols"));
     }
 
     return ResponseEntity.ok(
@@ -197,7 +201,7 @@ public class InvestmentController {
   public ResponseEntity<?> batchSymbolLookup(
       @RequestParam String symbols, @RequestParam(required = false) String exchange) {
     logger.info("Received batch symbol lookup request for symbols: {}", symbols);
-    
+
     if (symbols == null || symbols.trim().isEmpty()) {
       return ResponseEntity.badRequest()
           .body(
@@ -233,11 +237,11 @@ public class InvestmentController {
     }
 
     result.put("successfulLookups", responses);
-    
+
     if (!failedSymbols.isEmpty()) {
       result.put("failedSymbols", failedSymbols);
       result.put("message", "Some symbols could not be found or had errors");
-      
+
       if (responses.isEmpty()) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(
@@ -246,7 +250,7 @@ public class InvestmentController {
                     "NO_SYMBOLS_FOUND",
                     "No symbols could be found for the provided list"));
       }
-      
+
       return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
           .body(
               ApiResponse.success(
@@ -265,8 +269,7 @@ public class InvestmentController {
   }
 
   @GetMapping("/recommendationTrends")
-  public ResponseEntity<?> getRecommendationTrends(
-      @RequestParam String ticker) {
+  public ResponseEntity<?> getRecommendationTrends(@RequestParam String ticker) {
     logger.info(
         "Received request for /api/investments/recommendationTrends with ticker: {}", ticker);
 
@@ -338,9 +341,11 @@ public class InvestmentController {
 
   @GetMapping("/marketNews")
   public ResponseEntity<?> getMarketNews(
-      @RequestParam String category,
-      @RequestParam(required = false) Long minId) {
-    logger.info("Received request for /api/investments/marketNews with category: {}, minId: {}", category, minId);
+      @RequestParam String category, @RequestParam(required = false) Long minId) {
+    logger.info(
+        "Received request for /api/investments/marketNews with category: {}, minId: {}",
+        category,
+        minId);
 
     try {
       List<MarketNewsResponse> news = finnhubClient.getMarketNews(category.toLowerCase(), minId);
@@ -367,9 +372,7 @@ public class InvestmentController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               ApiResponse.error(
-                  HttpStatus.BAD_REQUEST.value(),
-                  "INVALID_PARAMETER",
-                  e.getMessage()));
+                  HttpStatus.BAD_REQUEST.value(), "INVALID_PARAMETER", e.getMessage()));
     } catch (RuntimeException e) {
       logger.error("Error occurred while fetching market news: {}", e.getMessage());
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

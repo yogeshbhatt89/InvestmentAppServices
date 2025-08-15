@@ -57,8 +57,7 @@ public class PortfolioController {
 
   // 2️⃣ Get all portfolios for the logged-in user
   @GetMapping
-  public ResponseEntity<?> getUserPortfolios(
-      @AuthenticationPrincipal User user) {
+  public ResponseEntity<?> getUserPortfolios(@AuthenticationPrincipal User user) {
     List<PortfolioRequest> portfolios = portfolioService.getUserPortfolios(user.getEmail());
     return ResponseEntity.ok(
         ApiResponse.success(
@@ -70,12 +69,10 @@ public class PortfolioController {
 
   // 3️⃣ Get a specific portfolio
   @GetMapping("/{id}")
-  public ResponseEntity<?> getPortfolio(
-      @PathVariable Long id, @AuthenticationPrincipal User user) {
+  public ResponseEntity<?> getPortfolio(@PathVariable Long id, @AuthenticationPrincipal User user) {
     PortfolioRequest portfolio = portfolioService.getPortfolio(id, user.getEmail());
     return ResponseEntity.ok(
-        ApiResponse.success(
-            portfolio, HttpStatus.OK.value(), "Fetched portfolio", "id: " + id));
+        ApiResponse.success(portfolio, HttpStatus.OK.value(), "Fetched portfolio", "id: " + id));
   }
 
   // 4️⃣ Update portfolio details
@@ -107,12 +104,12 @@ public class PortfolioController {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "INVALID_ARGUMENT", ex.getMessage()));
+        .body(
+            ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "INVALID_ARGUMENT", ex.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<?> handleValidationExceptions(
-      MethodArgumentNotValidException ex) {
+  public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
     System.err.println("handleValidationExceptions called");
     Map<String, String> errors = new HashMap<>();
     ex.getBindingResult()
@@ -134,15 +131,12 @@ public class PortfolioController {
   public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(
-            ApiResponse.error(
-                HttpStatus.NOT_FOUND.value(), "RESOURCE_NOT_FOUND", ex.getMessage()));
+            ApiResponse.error(HttpStatus.NOT_FOUND.value(), "RESOURCE_NOT_FOUND", ex.getMessage()));
   }
 
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(
-            ApiResponse.error(
-                HttpStatus.FORBIDDEN.value(), "ACCESS_DENIED", ex.getMessage()));
+        .body(ApiResponse.error(HttpStatus.FORBIDDEN.value(), "ACCESS_DENIED", ex.getMessage()));
   }
 }

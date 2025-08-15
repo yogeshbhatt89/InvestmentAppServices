@@ -98,10 +98,7 @@ public class AdminManagementController {
     userRepository.save(user);
     return ResponseEntity.ok(
         ApiResponse.success(
-            Map.of("id", id.toString(), "isActive", active),
-            HttpStatus.OK.value(),
-            message,
-            null));
+            Map.of("id", id.toString(), "isActive", active), HttpStatus.OK.value(), message, null));
   }
 
   // #9 adminApis-getAllUserPortfolios
@@ -124,7 +121,9 @@ public class AdminManagementController {
   @DeleteMapping("/portfolios")
   public ResponseEntity<?> deletePortfoliosByIds(@RequestParam(name = "ids") String idsCsv) {
     List<Long> ids =
-        Arrays.stream(idsCsv.split(",")).map(String::trim).filter(s -> !s.isEmpty())
+        Arrays.stream(idsCsv.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
             .map(Long::valueOf)
             .collect(Collectors.toList());
     List<Long> deleted = new ArrayList<>();

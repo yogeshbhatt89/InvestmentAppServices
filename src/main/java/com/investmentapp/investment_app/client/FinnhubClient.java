@@ -53,7 +53,8 @@ public class FinnhubClient {
 
   public SymbolLookupResponse symbolLookup(String query, String exchange) {
     String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-    String encodedExchange = exchange != null ? URLEncoder.encode(exchange, StandardCharsets.UTF_8) : "";
+    String encodedExchange =
+        exchange != null ? URLEncoder.encode(exchange, StandardCharsets.UTF_8) : "";
     String url =
         String.format(
             "https://finnhub.io/api/v1/search?q=%s&exchange=%s&token=%s",
@@ -202,7 +203,8 @@ public class FinnhubClient {
    * Fetches market news for the specified category.
    *
    * @param category The category of news to fetch. Must be one of: general, forex, crypto, merger.
-   * @param minId Optional minimum news ID to fetch. Only news with ID greater than this will be returned.
+   * @param minId Optional minimum news ID to fetch. Only news with ID greater than this will be
+   *     returned.
    * @return List of market news items.
    * @throws IllegalArgumentException if an invalid category is provided.
    */
@@ -214,11 +216,9 @@ public class FinnhubClient {
     }
 
     // Build URL with required parameters
-    String url = String.format(
-        "https://finnhub.io/api/v1/news?category=%s&token=%s",
-        category.toLowerCase(),
-        apiKey
-    );
+    String url =
+        String.format(
+            "https://finnhub.io/api/v1/news?category=%s&token=%s", category.toLowerCase(), apiKey);
 
     // Add optional minId parameter if provided
     if (minId != null && minId > 0) {

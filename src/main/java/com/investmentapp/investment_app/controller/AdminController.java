@@ -68,10 +68,7 @@ public class AdminController {
 
       return ResponseEntity.ok(
           ApiResponse.success(
-              users,
-              HttpStatus.OK.value(),
-              "Fetched all users",
-              "Total users: " + users.size()));
+              users, HttpStatus.OK.value(), "Fetched all users", "Total users: " + users.size()));
 
     } catch (Exception ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

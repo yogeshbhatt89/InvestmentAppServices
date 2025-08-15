@@ -4,7 +4,6 @@ import com.investmentapp.investment_app.exception.AccessDeniedException;
 import com.investmentapp.investment_app.exception.InsufficientBalanceException;
 import com.investmentapp.investment_app.exception.NoHoldingsToSellException;
 import com.investmentapp.investment_app.model.ApiResponse;
-import com.investmentapp.investment_app.model.ErrorResponse;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -24,10 +23,10 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(InsufficientBalanceException.class) // Add this handler
-  public ResponseEntity<ApiResponse<Object>> handleInsufficientBalance(InsufficientBalanceException ex) {
+  public ResponseEntity<ApiResponse<Object>> handleInsufficientBalance(
+      InsufficientBalanceException ex) {
     return new ResponseEntity<>(
-        ApiResponse.error(
-            HttpStatus.BAD_REQUEST.value(), "INSUFFICIENT_BALANCE", ex.getMessage()),
+        ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "INSUFFICIENT_BALANCE", ex.getMessage()),
         HttpStatus.BAD_REQUEST);
   }
 
@@ -53,8 +52,7 @@ public class GlobalExceptionHandler {
         .getFieldErrors()
         .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
     return new ResponseEntity<>(
-        ApiResponse.error(
-            HttpStatus.BAD_REQUEST.value(), "VALIDATION_FAILED", errors.toString()),
+        ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "VALIDATION_FAILED", errors.toString()),
         HttpStatus.BAD_REQUEST);
   }
 

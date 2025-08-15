@@ -37,7 +37,9 @@ public class AuthController {
       UserResponse resp = UserResponse.fromEntity(created);
 
       return ResponseEntity.status(HttpStatus.CREATED)
-          .body(ApiResponse.success(resp, HttpStatus.CREATED.value(), "Registration successful", null));
+          .body(
+              ApiResponse.success(
+                  resp, HttpStatus.CREATED.value(), "Registration successful", null));
 
     } catch (EmailAlreadyExistsException | UsernameAlreadyExistsException ex) {
       // 409 Conflict when email or username is already taken
@@ -77,14 +79,19 @@ public class AuthController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(
               ApiResponse.error(
-                  HttpStatus.BAD_REQUEST.value(), "REFRESH_TOKEN_REQUIRED", "Refresh token is required"));
+                  HttpStatus.BAD_REQUEST.value(),
+                  "REFRESH_TOKEN_REQUIRED",
+                  "Refresh token is required"));
     }
 
     try {
       String newAccessToken = authService.refreshAccessToken(refreshToken);
       return ResponseEntity.ok(
           ApiResponse.success(
-              Map.of("accessToken", newAccessToken), HttpStatus.OK.value(), "Token refreshed", null));
+              Map.of("accessToken", newAccessToken),
+              HttpStatus.OK.value(),
+              "Token refreshed",
+              null));
     } catch (RuntimeException e) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
           .body(
