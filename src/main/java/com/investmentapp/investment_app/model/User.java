@@ -1,5 +1,6 @@
 package com.investmentapp.investment_app.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.investmentapp.investment_app.enums.Role;
@@ -48,6 +49,7 @@ public class User implements UserDetails {
   private String username;
 
   @Column(name = "birthday", columnDefinition = "DATE")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
   private LocalDate birthday;
 
   // Using wrapper classes to handle the transient nature of these fields
@@ -69,16 +71,20 @@ public class User implements UserDetails {
 
   @CreationTimestamp
   @Column(name = "created_at", updatable = false)
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime createdAt;
 
   @UpdateTimestamp
   @Column(name = "updated_at")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime updatedAt;
 
   @Column(name = "last_login_at")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime lastLoginAt;
 
   @Column(name = "password_changed_at")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime passwordChangedAt;
 
   @ElementCollection(fetch = FetchType.EAGER)

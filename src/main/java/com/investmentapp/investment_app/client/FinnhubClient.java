@@ -53,7 +53,8 @@ public class FinnhubClient {
 
   public SymbolLookupResponse symbolLookup(String query, String exchange) {
     String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-    String encodedExchange = URLEncoder.encode(exchange, StandardCharsets.UTF_8);
+    String encodedExchange =
+        exchange != null ? URLEncoder.encode(exchange, StandardCharsets.UTF_8) : "";
     String url =
         String.format(
             "https://finnhub.io/api/v1/search?q=%s&exchange=%s&token=%s",
@@ -196,5 +197,44 @@ public class FinnhubClient {
       return ((Number) obj).doubleValue();
     }
     return 0.0;
+  }
+
+  /**
+   * Fetches market news for the specified category.
+   *
+   * @param category The category of news to fetch. Must be one of: general, forex, crypto, merger.
+   * @param minId Optional minimum news ID to fetch. Only news with ID greater than this will be
+   *     returned.
+   * @return List of market news items.
+   * @throws IllegalArgumentException if an invalid category is provided.
+   */
+  public List<MarketNewsResponse> getMarketNews(String category, Long minId) {
+    // Validate category
+    if (!List.of("general", "forex", "crypto", "merger").contains(category.toLowerCase())) {
+      throw new IllegalArgumentException(
+          "Invalid category. Must be one of: general, forex, crypto, merger");
+    }
+
+    // Build URL with required parameters
+    String url =
+        String.format(
+            "https://finnhub.io/api/v1/news?category=%s&token=%s", category.toLowerCase(), apiKey);
+
+    // Add optional minId parameter if provided
+    if (minId != null && minId > 0) {
+      url += "&minId=" + minId;
+    }
+
+    return sendRequest(url, new TypeReference<List<MarketNewsResponse>>() {});
+  }
+
+  /**
+   * Overloaded method to fetch market news without minId parameter.
+   *
+   * @param category The category of news to fetch.
+   * @return List of market news items.
+   */
+  public List<MarketNewsResponse> getMarketNews(String category) {
+    return getMarketNews(category, null);
   }
 }

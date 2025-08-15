@@ -59,11 +59,11 @@ public class SecurityConfig {
                     // Public endpoints
                     .requestMatchers("/api/auth/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/health", "/api/investments/public/**")
+                    .requestMatchers(HttpMethod.GET, "/health", "/api/investments/**")
                     .permitAll()
 
                     // User-only endpoints
-                    .requestMatchers("/me", "/api/investments/**")
+                    .requestMatchers("/me")
                     .hasRole("USER")
 
                     // Admin-only endpoints

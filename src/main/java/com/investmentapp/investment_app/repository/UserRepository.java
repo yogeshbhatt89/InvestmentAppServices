@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.repository;
 
 import com.investmentapp.investment_app.model.User;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -40,4 +41,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
    * @return true if exists, false otherwise
    */
   boolean existsByUsername(String username);
+
+  /** Find all active users. */
+  List<User> findByIsActiveTrue();
 }
