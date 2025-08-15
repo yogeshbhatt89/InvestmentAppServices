@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.dto.request.TransactionRequest;
+import com.investmentapp.investment_app.model.ApiResponse;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.service.TransactionService;
 import java.util.List;
@@ -20,25 +21,41 @@ public class TransactionController {
   }
 
   @PostMapping
-  public ResponseEntity<TransactionRequest> createTransaction(
+  public ResponseEntity<?> createTransaction(
       @RequestBody TransactionRequest transactionRequest, @AuthenticationPrincipal User user) {
     try {
       TransactionRequest result = transactionService.executeTransaction(transactionRequest, user);
-      return new ResponseEntity<>(result, HttpStatus.CREATED);
+      return ResponseEntity.status(HttpStatus.CREATED)
+          .body(
+              ApiResponse.success(
+                  result, HttpStatus.CREATED.value(), "Transaction created", null));
     } catch (Exception e) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(
+              ApiResponse.error(
+                  HttpStatus.BAD_REQUEST.value(), "TRANSACTION_FAILED", e.getMessage()));
     }
   }
 
   @GetMapping("/history")
-  public ResponseEntity<List<TransactionRequest>> getTransactionHistory(
+  public ResponseEntity<?> getTransactionHistory(
       @AuthenticationPrincipal User user) {
-    return ResponseEntity.ok(transactionService.getTransactionHistory(user));
+    List<TransactionRequest> history = transactionService.getTransactionHistory(user);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            history, HttpStatus.OK.value(), "Transaction history fetched", null));
   }
 
   @GetMapping("/history/{portfolioId}")
-  public List<TransactionRequest> getTransactionHistoryByPortfolioId(
+  public ResponseEntity<?> getTransactionHistoryByPortfolioId(
       @PathVariable Long portfolioId, @AuthenticationPrincipal User user) {
-    return transactionService.getTransactionHistoryByPortfolioId(portfolioId);
+    List<TransactionRequest> history =
+        transactionService.getTransactionHistoryByPortfolioId(portfolioId);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            history,
+            HttpStatus.OK.value(),
+            "Transaction history fetched",
+            "portfolioId: " + portfolioId));
   }
 }

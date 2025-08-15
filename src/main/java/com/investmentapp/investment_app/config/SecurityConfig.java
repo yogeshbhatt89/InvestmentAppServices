@@ -3,7 +3,6 @@ package com.investmentapp.investment_app.config;
 import com.investmentapp.investment_app.repository.UserRepository;
 import com.investmentapp.investment_app.security.JwtAuthorizationFilter;
 import com.investmentapp.investment_app.security.JwtTokenUtil;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -59,11 +60,11 @@ public class SecurityConfig {
                     // Public endpoints
                     .requestMatchers("/api/auth/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/health", "/api/investments/public/**")
+                    .requestMatchers(HttpMethod.GET, "/health", "/api/investments/**")
                     .permitAll()
 
                     // User-only endpoints
-                    .requestMatchers("/me", "/api/investments/**")
+                    .requestMatchers("/me")
                     .hasRole("USER")
 
                     // Admin-only endpoints

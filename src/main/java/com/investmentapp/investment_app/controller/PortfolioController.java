@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.dto.request.PortfolioRequest;
+import com.investmentapp.investment_app.model.ApiResponse;
 import com.investmentapp.investment_app.model.Holding;
 import com.investmentapp.investment_app.model.User;
 import com.investmentapp.investment_app.repository.HoldingRepository;
@@ -35,63 +36,82 @@ public class PortfolioController {
   }
 
   @GetMapping("/{id}/holdings")
-  public ResponseEntity<List<Holding>> getPortfolioHoldings(@PathVariable Long id) {
-    return ResponseEntity.ok(holdingRepository.findByPortfolioId(id));
+  public ResponseEntity<?> getPortfolioHoldings(@PathVariable Long id) {
+    List<Holding> holdings = holdingRepository.findByPortfolioId(id);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            holdings, HttpStatus.OK.value(), "Holdings fetched", "portfolioId: " + id));
   }
 
   // 1️⃣ Create a portfolio
   @PostMapping
-  public ResponseEntity<PortfolioRequest> createPortfolio(
+  public ResponseEntity<?> createPortfolio(
       @RequestBody PortfolioRequest portfolioRequest, @AuthenticationPrincipal User user) {
     PortfolioRequest createdPortfolio =
         portfolioService.createPortfolio(portfolioRequest, user.getEmail());
-    return ResponseEntity.status(HttpStatus.CREATED).body(createdPortfolio);
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            ApiResponse.success(
+                createdPortfolio, HttpStatus.CREATED.value(), "Portfolio created", null));
   }
 
   // 2️⃣ Get all portfolios for the logged-in user
   @GetMapping
-  public ResponseEntity<List<PortfolioRequest>> getUserPortfolios(
+  public ResponseEntity<?> getUserPortfolios(
       @AuthenticationPrincipal User user) {
     List<PortfolioRequest> portfolios = portfolioService.getUserPortfolios(user.getEmail());
-    return ResponseEntity.ok(portfolios);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            portfolios,
+            HttpStatus.OK.value(),
+            "Fetched user portfolios",
+            "count: " + portfolios.size()));
   }
 
   // 3️⃣ Get a specific portfolio
   @GetMapping("/{id}")
-  public ResponseEntity<PortfolioRequest> getPortfolio(
+  public ResponseEntity<?> getPortfolio(
       @PathVariable Long id, @AuthenticationPrincipal User user) {
     PortfolioRequest portfolio = portfolioService.getPortfolio(id, user.getEmail());
-    return ResponseEntity.ok(portfolio);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            portfolio, HttpStatus.OK.value(), "Fetched portfolio", "id: " + id));
   }
 
   // 4️⃣ Update portfolio details
   @PutMapping("/{id}")
-  public ResponseEntity<PortfolioRequest> updatePortfolio(
+  public ResponseEntity<?> updatePortfolio(
       @PathVariable Long id,
       @Valid @RequestBody PortfolioRequest portfolioRequest,
       @AuthenticationPrincipal User user) {
     PortfolioRequest updatedPortfolio =
         portfolioService.updatePortfolio(id, portfolioRequest, user.getEmail());
-    return ResponseEntity.ok(updatedPortfolio);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            updatedPortfolio, HttpStatus.OK.value(), "Portfolio updated", "id: " + id));
   }
 
   // 5️⃣ Delete a portfolio
   @DeleteMapping("/{id}")
-  public ResponseEntity<Map<String, String>> deletePortfolio(
+  public ResponseEntity<?> deletePortfolio(
       @PathVariable Long id, @AuthenticationPrincipal User user) {
     portfolioService.deletePortfolio(id, user.getEmail());
-    Map<String, String> response = new HashMap<>();
-    response.put("message", "Portfolio deleted successfully");
-    return ResponseEntity.ok(response);
+    Map<String, Object> data = new HashMap<>();
+    data.put("deleted", true);
+    data.put("id", id);
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            data, HttpStatus.OK.value(), "Portfolio deleted successfully", "id: " + id));
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
-  public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-    return ResponseEntity.badRequest().body(ex.getMessage());
+  public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ApiResponse.error(HttpStatus.BAD_REQUEST.value(), "INVALID_ARGUMENT", ex.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, String>> handleValidationExceptions(
+  public ResponseEntity<?> handleValidationExceptions(
       MethodArgumentNotValidException ex) {
     System.err.println("handleValidationExceptions called");
     Map<String, String> errors = new HashMap<>();
@@ -104,16 +124,25 @@ public class PortfolioController {
               System.err.println("Error: " + fieldName + " - " + errorMessage);
               errors.put(fieldName, errorMessage);
             });
-    return ResponseEntity.badRequest().body(errors);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            ApiResponse.error(
+                HttpStatus.BAD_REQUEST.value(), "VALIDATION_FAILED", errors.toString()));
   }
 
   @ExceptionHandler(EntityNotFoundException.class)
-  public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(
+            ApiResponse.error(
+                HttpStatus.NOT_FOUND.value(), "RESOURCE_NOT_FOUND", ex.getMessage()));
   }
 
   @ExceptionHandler(AccessDeniedException.class)
-  public ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+  public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(
+            ApiResponse.error(
+                HttpStatus.FORBIDDEN.value(), "ACCESS_DENIED", ex.getMessage()));
   }
 }

@@ -1,6 +1,7 @@
 package com.investmentapp.investment_app.controller;
 
 import com.investmentapp.investment_app.exception.UserNotFoundException;
+import com.investmentapp.investment_app.model.ApiResponse;
 import com.investmentapp.investment_app.service.UserService;
 import java.util.Map;
 import java.util.UUID;
@@ -30,38 +31,26 @@ public class AdminController {
     try {
       userService.deleteUserById(id);
 
-      Map<String, Object> successBody =
-          Map.of(
-              "success",
-              Map.of(
-                  "code",
-                  204,
-                  "message",
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(
+              ApiResponse.success(
+                  Map.of("deleted", true, "id", id.toString()),
+                  HttpStatus.OK.value(),
                   "User successfully deleted",
-                  "details",
                   "User with ID " + id + " was deleted"));
-
-      return ResponseEntity.status(HttpStatus.OK).body(successBody);
 
     } catch (UserNotFoundException ex) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
           .body(
-              Map.of(
-                  "error",
-                  Map.of(
-                      "code", 404, "message", "Resource not found", "details", ex.getMessage())));
+              ApiResponse.error(
+                  HttpStatus.NOT_FOUND.value(), "RESOURCE_NOT_FOUND", ex.getMessage()));
     } catch (Exception ex) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
-              Map.of(
-                  "error",
-                  Map.of(
-                      "code",
-                      500,
-                      "message",
-                      "Internal server error",
-                      "details",
-                      ex.getMessage())));
+              ApiResponse.error(
+                  HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                  "INTERNAL_SERVER_ERROR",
+                  ex.getMessage()));
     }
   }
 
@@ -77,27 +66,20 @@ public class AdminController {
     try {
       var users = userService.getAllUsers(); // returns List<UserDto> or List<User>
 
-      Map<String, Object> successBody =
-          Map.of(
-              "success",
-              Map.of(
-                  "code",
-                  200,
-                  "message",
-                  "Fetched all users",
-                  "details",
-                  "Total users: " + users.size()),
-              "data",
-              users);
-
-      return ResponseEntity.ok(successBody);
+      return ResponseEntity.ok(
+          ApiResponse.success(
+              users,
+              HttpStatus.OK.value(),
+              "Fetched all users",
+              "Total users: " + users.size()));
 
     } catch (Exception ex) {
-      Map<String, Object> errorBody =
-          Map.of(
-              "error",
-              Map.of("code", 500, "message", "Internal server error", "details", ex.getMessage()));
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(
+              ApiResponse.error(
+                  HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                  "INTERNAL_SERVER_ERROR",
+                  ex.getMessage()));
     }
   }
 }
