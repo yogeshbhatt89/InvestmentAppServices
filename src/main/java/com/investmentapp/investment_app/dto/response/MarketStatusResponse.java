@@ -11,8 +11,10 @@ import lombok.Setter;
 public class MarketStatusResponse {
   private String exchange;
   private String holiday;
+
   @JsonProperty("isOpen")
   private boolean isOpen;
+
   private String session;
   private String timezone;
   private long t;
